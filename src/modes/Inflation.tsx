@@ -53,14 +53,13 @@ export default function Inflation() {
   ];
 
   const series: Series[] = [
-    { label: t.inflation.heroNominal, data: result.nominal, color: '#22C55E', width: 2 },
+    { label: t.inflation.heroNominal, data: result.nominal, color: '#94A3B8', dashed: true, width: 2 },
     {
       label: t.inflation.heroReal,
       data: result.real,
-      color: '#F5F7FA',
-      dashed: true,
-      width: 2,
-      fill: { target: '0', color: 'rgba(239, 68, 68, 0.10)' },
+      color: '#22C55E',
+      width: 3,
+      fill: { target: '0', color: 'rgba(239, 68, 68, 0.08)' },
     },
   ];
 
@@ -183,6 +182,17 @@ export default function Inflation() {
         </InputPanel>
 
         <div className="card">
+          <div className="mb-4 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="label text-emerald">CHART AS PROOF</div>
+              <p className="mt-1 text-sm text-muted">The shaded gap is the purchasing power inflation removes.</p>
+            </div>
+
+            <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-left sm:text-right">
+              <div className="label text-muted">{t.inflation.heroDrag}</div>
+              <div className="mono mt-1 text-sm font-semibold text-red-300">-{formatCurrency(gap)}</div>
+            </div>
+          </div>
           <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
           <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
         </div>
