@@ -141,25 +141,29 @@ export default function Inflation() {
             })}
           </SanityWarning>
 
-          <div className="grid sm:grid-cols-3 gap-4 mb-6">
-            <HeroNumber
-              label={t.inflation.heroNominal}
-              value={formatCurrency(finalNominal)}
-              tone="default"
-              sublabel={t.inflation.heroNominalSub}
-            />
-            <HeroNumber
-              label={t.inflation.heroReal}
-              value={formatCurrency(finalReal)}
-              tone="positive"
-              sublabel={t.inflation.heroRealSub}
-            />
-            <HeroNumber
-              label={t.inflation.heroDrag}
-              value={`−${formatCurrency(gap)}`}
-              tone="negative"
-              sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
-            />
+          <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.85fr)]">
+            <section className="card border-emerald/30 bg-emerald/5">
+              <div className="label text-emerald">{t.inflation.heroReal}</div>
+              <div className="mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl">
+                {formatCurrency(finalReal)}
+              </div>
+              <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
+            </section>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              <HeroNumber
+                label={t.inflation.heroNominal}
+                value={formatCurrency(finalNominal)}
+                tone="default"
+                sublabel={t.inflation.heroNominalSub}
+              />
+              <HeroNumber
+                label={t.inflation.heroDrag}
+                value={`−${formatCurrency(gap)}`}
+                tone="negative"
+                sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
+              />
+            </div>
           </div>
 
           <PlainEnglish>
