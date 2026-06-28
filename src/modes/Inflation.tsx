@@ -15,6 +15,8 @@ import { useScenarioStore, type InflationInputs } from '@/store/store';
 import { useUrlHydrate } from '@/store/urlSync';
 import { applyInflation, compound, formatCurrency, formatPercent } from '@/engine';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
+// @ts-ignore Vite resolves CSS modules; this project does not declare module CSS types.
+import styles from './Inflation.module.css';
 
 export default function Inflation() {
   const t = useT();
@@ -128,9 +130,9 @@ export default function Inflation() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start lg:gap-8">
-        <div className="grid gap-3 self-start">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3">
+      <div className={styles.correctionBench}>
+        <div className={styles.assumptionsRail}>
+          <div className={styles.assumptionsHeader}>
             <div className="label text-emerald">ASSUMPTIONS</div>
             <p className="mt-1 text-sm text-muted">Adjust the model inputs that shape the correction.</p>
           </div>
@@ -188,19 +190,22 @@ export default function Inflation() {
           </InputPanel>
         </div>
 
-        <div className="card">
-          <div className="mb-4 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+        <div className={styles.proofPanel}>
+          <div className={styles.proofHeader}>
+            <div className={styles.proofCopy}>
               <div className="label text-emerald">CHART AS PROOF</div>
               <p className="mt-1 text-sm text-muted">The shaded gap is the purchasing power inflation removes.</p>
             </div>
 
-            <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-left sm:text-right">
+            <div className={styles.proofStat}>
               <div className="label text-muted">{t.inflation.heroDrag}</div>
               <div className="mono mt-1 text-sm font-semibold text-red-300">-{formatCurrency(gap)}</div>
             </div>
           </div>
-          <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+
+          <div className={styles.proofChartFrame}>
+            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+          </div>
           <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
         </div>
       </div>
