@@ -128,58 +128,65 @@ export default function Inflation() {
         </div>
       </section>
 
-      <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
-        <InputPanel>
-          <NumberInput
-            label={t.inputs.startingPrincipal}
-            value={inflation.principal}
-            onChange={(v) => setInflation({ principal: v })}
-            prefix="$"
-            min={0}
-            step={1000}
-          />
-          <NumberInput
-            label={t.inputs.monthlyContribution}
-            value={inflation.monthlyContribution}
-            onChange={(v) => setInflation({ monthlyContribution: v })}
-            prefix="$"
-            min={0}
-            step={50}
-          />
-          <InputSlider
-            label={t.inputs.annualReturn}
-            value={inflation.annualReturn}
-            onChange={(v) => setInflation({ annualReturn: v })}
-            min={0}
-            max={0.2}
-            step={0.005}
-            displayMultiplier={100}
-            displayDecimals={1}
-            suffix="%"
-            hint={t.hints.annualReturnGeneric}
-          />
-          <InputSlider
-            label={t.inputs.inflationRate}
-            value={inflation.inflationRate}
-            onChange={(v) => setInflation({ inflationRate: v })}
-            min={0}
-            max={0.15}
-            step={0.0025}
-            displayMultiplier={100}
-            displayDecimals={2}
-            suffix="%"
-            hint={t.hints.inflationRateGeneric}
-          />
-          <InputSlider
-            label={t.inputs.years}
-            value={inflation.years}
-            onChange={(v) => setInflation({ years: v })}
-            min={1}
-            max={50}
-            step={1}
-            suffix={t.inputs.yrsSuffix}
-          />
-        </InputPanel>
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start lg:gap-8">
+        <div className="grid gap-3 self-start">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3">
+            <div className="label text-emerald">ASSUMPTIONS</div>
+            <p className="mt-1 text-sm text-muted">Adjust the model inputs that shape the correction.</p>
+          </div>
+
+          <InputPanel>
+            <NumberInput
+              label={t.inputs.startingPrincipal}
+              value={inflation.principal}
+              onChange={(v) => setInflation({ principal: v })}
+              prefix="$"
+              min={0}
+              step={1000}
+            />
+            <NumberInput
+              label={t.inputs.monthlyContribution}
+              value={inflation.monthlyContribution}
+              onChange={(v) => setInflation({ monthlyContribution: v })}
+              prefix="$"
+              min={0}
+              step={50}
+            />
+            <InputSlider
+              label={t.inputs.annualReturn}
+              value={inflation.annualReturn}
+              onChange={(v) => setInflation({ annualReturn: v })}
+              min={0}
+              max={0.2}
+              step={0.005}
+              displayMultiplier={100}
+              displayDecimals={1}
+              suffix="%"
+              hint={t.hints.annualReturnGeneric}
+            />
+            <InputSlider
+              label={t.inputs.inflationRate}
+              value={inflation.inflationRate}
+              onChange={(v) => setInflation({ inflationRate: v })}
+              min={0}
+              max={0.15}
+              step={0.0025}
+              displayMultiplier={100}
+              displayDecimals={2}
+              suffix="%"
+              hint={t.hints.inflationRateGeneric}
+            />
+            <InputSlider
+              label={t.inputs.years}
+              value={inflation.years}
+              onChange={(v) => setInflation({ years: v })}
+              min={1}
+              max={50}
+              step={1}
+              suffix={t.inputs.yrsSuffix}
+            />
+          </InputPanel>
+        </div>
 
         <div className="card">
           <div className="mb-4 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between">
