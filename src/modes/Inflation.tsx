@@ -6,12 +6,18 @@ import { ModeHeader } from '@/components/Section';
 import { HeroNumber } from '@/components/HeroNumber';
 import { Callout } from '@/components/Callout';
 import { ShareButton } from '@/components/ShareButton';
-import { useScenarioStore } from '@/store/store';
+import { ModeExplainer } from '@/components/ModeExplainer';
+import { ScenarioPresets, type PresetChip } from '@/components/ScenarioPresets';
+import { PlainEnglish } from '@/components/PlainEnglish';
+import { SanityWarning } from '@/components/SanityWarning';
+import { useT } from '@/i18n';
+import { useScenarioStore, type InflationInputs } from '@/store/store';
 import { useUrlHydrate } from '@/store/urlSync';
 import { applyInflation, compound, formatCurrency, formatPercent } from '@/engine';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
 
 export default function Inflation() {
+  const t = useT();
   const inflation = useScenarioStore((s) => s.inflation);
   const setInflation = useScenarioStore((s) => s.setInflation);
 
@@ -28,27 +34,33 @@ export default function Inflation() {
   const result = useMemo(() => {
     const c = compound(debounced.principal, debounced.monthlyContribution, debounced.annualReturn, debounced.years);
     const real = applyInflation(c.yearlyBalances, debounced.inflationRate);
-    return { nominal: c.yearlyBalances, real, totalContributed: c.totalContributed };
+    return { nominal: c.yearlyBalances, real };
   }, [debounced]);
 
   const finalNominal = result.nominal[result.nominal.length - 1];
   const finalReal = result.real[result.real.length - 1];
   const gap = finalNominal - finalReal;
+  const realReturn = (1 + debounced.annualReturn) / (1 + debounced.inflationRate) - 1;
+  const losingPower = realReturn < 0;
+
+  const presetItems = t.presets.inflation.items;
+  const presets: PresetChip<InflationInputs>[] = [
+    { label: presetItems.longRun.label, blurb: presetItems.longRun.blurb, values: { inflationRate: 0.03 } },
+    { label: presetItems.stagflation.label, blurb: presetItems.stagflation.blurb, values: { inflationRate: 0.07 } },
+    { label: presetItems.warEra.label, blurb: presetItems.warEra.blurb, values: { inflationRate: 0.10 } },
+    { label: presetItems.covid.label, blurb: presetItems.covid.blurb, values: { inflationRate: 0.05 } },
+    { label: presetItems.japanDefl.label, blurb: presetItems.japanDefl.blurb, values: { inflationRate: 0.00 } },
+  ];
 
   const series: Series[] = [
+    { label: t.inflation.heroNominal, data: result.nominal, color: '#22C55E', width: 2 },
     {
-      label: 'Nominal balance',
-      data: result.nominal,
-      color: '#0F766E',
-      width: 2,
-    },
-    {
-      label: "Today's dollars (real)",
+      label: t.inflation.heroReal,
       data: result.real,
-      color: '#0A0A0A',
+      color: '#F5F7FA',
       dashed: true,
       width: 2,
-      fill: { target: '0', color: 'rgba(220, 38, 38, 0.06)' },
+      fill: { target: '0', color: 'rgba(239, 68, 68, 0.10)' },
     },
   ];
 
@@ -57,16 +69,20 @@ export default function Inflation() {
   return (
     <div>
       <ModeHeader
-        eyebrow="Mode 01 · Inflation"
-        title="The number you see isn't the number you'll spend."
-        subtitle="A 7% nominal return at 3% inflation is really 4%. Watch the gap open."
+        eyebrow={t.inflation.eyebrow}
+        title={t.inflation.title}
+        subtitle={t.inflation.subtitle}
         actions={<ShareButton params={inflation as unknown as Record<string, number>} />}
       />
+
+      <ModeExplainer summary={t.inflation.explainerSummary}>{t.inflation.explainer}</ModeExplainer>
+
+      <ScenarioPresets<InflationInputs> presets={presets} onApply={(v) => setInflation(v)} title={t.presets.inflation.title} />
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
         <InputPanel>
           <NumberInput
-            label="Starting principal"
+            label={t.inputs.startingPrincipal}
             value={inflation.principal}
             onChange={(v) => setInflation({ principal: v })}
             prefix="$"
@@ -74,7 +90,7 @@ export default function Inflation() {
             step={1000}
           />
           <NumberInput
-            label="Monthly contribution"
+            label={t.inputs.monthlyContribution}
             value={inflation.monthlyContribution}
             onChange={(v) => setInflation({ monthlyContribution: v })}
             prefix="$"
@@ -82,7 +98,7 @@ export default function Inflation() {
             step={50}
           />
           <InputSlider
-            label="Annual return"
+            label={t.inputs.annualReturn}
             value={inflation.annualReturn}
             onChange={(v) => setInflation({ annualReturn: v })}
             min={0}
@@ -91,54 +107,75 @@ export default function Inflation() {
             displayMultiplier={100}
             displayDecimals={1}
             suffix="%"
+            hint={t.hints.annualReturnGeneric}
           />
           <InputSlider
-            label="Inflation rate"
+            label={t.inputs.inflationRate}
             value={inflation.inflationRate}
             onChange={(v) => setInflation({ inflationRate: v })}
             min={0}
-            max={0.1}
+            max={0.15}
             step={0.0025}
             displayMultiplier={100}
             displayDecimals={2}
             suffix="%"
-            hint="Long-run US average is ~3%."
+            hint={t.hints.inflationRateGeneric}
           />
           <InputSlider
-            label="Years"
+            label={t.inputs.years}
             value={inflation.years}
             onChange={(v) => setInflation({ years: v })}
             min={1}
             max={50}
             step={1}
-            suffix=" yrs"
+            suffix={t.inputs.yrsSuffix}
           />
         </InputPanel>
 
         <div>
+          <SanityWarning when={losingPower} tone="warning" title={t.inflation.warningTitle}>
+            {t.inflation.warningBody({
+              nominal: formatPercent(debounced.annualReturn),
+              inflation: formatPercent(debounced.inflationRate),
+              net: formatPercent(-realReturn),
+            })}
+          </SanityWarning>
+
           <div className="grid sm:grid-cols-3 gap-4 mb-6">
-            <HeroNumber label="Nominal balance" value={formatCurrency(finalNominal)} tone="default" />
             <HeroNumber
-              label={`Real (today's $)`}
-              value={formatCurrency(finalReal)}
-              tone="positive"
-              sublabel={`What it'll actually buy you`}
+              label={t.inflation.heroNominal}
+              value={formatCurrency(finalNominal)}
+              tone="default"
+              sublabel={t.inflation.heroNominalSub}
             />
             <HeroNumber
-              label="Inflation drag"
+              label={t.inflation.heroReal}
+              value={formatCurrency(finalReal)}
+              tone="positive"
+              sublabel={t.inflation.heroRealSub}
+            />
+            <HeroNumber
+              label={t.inflation.heroDrag}
               value={`−${formatCurrency(gap)}`}
               tone="negative"
-              sublabel={formatPercent(gap / Math.max(finalNominal, 1))}
+              sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
             />
           </div>
 
+          <PlainEnglish>
+            {t.inflation.plainEnglish({
+              years: debounced.years,
+              nominal: formatCurrency(finalNominal),
+              real: formatCurrency(finalReal),
+              gap: formatCurrency(gap),
+              realReturn: formatPercent(realReturn),
+              annualReturn: formatPercent(debounced.annualReturn),
+            })}
+          </PlainEnglish>
+
           <div className="card">
             <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
-            <Callout>
-              In today's dollars, you'll actually have <strong>{formatCurrency(finalReal)}</strong>. The shaded gap
-              is purchasing power your future self quietly loses to inflation — it widens exponentially after about
-              year 15.
-            </Callout>
+            <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
           </div>
         </div>
       </div>

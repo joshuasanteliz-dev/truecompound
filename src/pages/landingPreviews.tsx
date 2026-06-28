@@ -37,14 +37,20 @@ function compoundSeries(rate: number, steps: number): number[] {
   return out;
 }
 
+const GAIN = '#22C55E';
+const LOSS = '#EF4444';
+const INK = '#F5F7FA';
+const MUTED = '#8B92A5';
+const BAND = 'rgba(34,197,94,0.14)';
+
 export function MiniInflation() {
   const nominal = compoundSeries(0.08, 20);
   const real = nominal.map((v, i) => v / Math.pow(1.03, i));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
-      <path d={`${path(nominal)} L${W - PAD},${H - PAD} L${PAD},${H - PAD} Z`} fill="rgba(220,38,38,0.08)" />
-      <path d={path(real)} stroke="#0F766E" strokeWidth="2" fill="none" />
-      <path d={path(nominal)} stroke="#0A0A0A" strokeWidth="2" fill="none" strokeDasharray="4 3" />
+      <path d={`${path(nominal)} L${W - PAD},${H - PAD} L${PAD},${H - PAD} Z`} fill="rgba(239,68,68,0.10)" />
+      <path d={path(nominal)} stroke={GAIN} strokeWidth="2" fill="none" />
+      <path d={path(real)} stroke={INK} strokeWidth="2" fill="none" strokeDasharray="4 3" />
     </svg>
   );
 }
@@ -54,8 +60,8 @@ export function MiniDCA() {
   const dca = lump.map((v, i) => 100 + (v - 100) * Math.min(i / 5, 1));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
-      <path d={path(lump)} stroke="#0F766E" strokeWidth="2" fill="none" />
-      <path d={path(dca)} stroke="#0A0A0A" strokeWidth="2" fill="none" strokeDasharray="4 3" />
+      <path d={path(lump)} stroke={GAIN} strokeWidth="2" fill="none" />
+      <path d={path(dca)} stroke={INK} strokeWidth="2" fill="none" strokeDasharray="4 3" />
     </svg>
   );
 }
@@ -65,9 +71,9 @@ export function MiniDebt() {
   const debt = compoundSeries(0.07, 20).map((v, i) => 200 - (v - 100) * (i / 20));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
-      <line x1={PAD} y1={H / 2} x2={W - PAD} y2={H / 2} stroke="#E5E7EB" strokeDasharray="2 3" />
-      <path d={path(investment)} stroke="#0F766E" strokeWidth="2" fill="none" />
-      <path d={path(debt)} stroke="#DC2626" strokeWidth="2" fill="none" />
+      <line x1={PAD} y1={H / 2} x2={W - PAD} y2={H / 2} stroke="#252934" strokeDasharray="2 3" />
+      <path d={path(investment)} stroke={GAIN} strokeWidth="2" fill="none" />
+      <path d={path(debt)} stroke={LOSS} strokeWidth="2" fill="none" />
     </svg>
   );
 }
@@ -78,9 +84,9 @@ export function MiniTax() {
   const taxable = compoundSeries(0.068, 20);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
-      <path d={path(trad)} stroke="#6B7280" strokeWidth="2" fill="none" strokeDasharray="4 3" />
-      <path d={path(roth)} stroke="#0F766E" strokeWidth="2" fill="none" />
-      <path d={path(taxable)} stroke="#DC2626" strokeWidth="2" fill="none" />
+      <path d={path(trad)} stroke={MUTED} strokeWidth="2" fill="none" strokeDasharray="4 3" />
+      <path d={path(roth)} stroke={GAIN} strokeWidth="2" fill="none" />
+      <path d={path(taxable)} stroke={LOSS} strokeWidth="2" fill="none" />
     </svg>
   );
 }
@@ -99,11 +105,11 @@ export function MiniMonteCarlo() {
           .reverse()
           .join(' ')
           .replace(/M/g, 'L')} Z`}
-        fill="rgba(15,118,110,0.12)"
+        fill={BAND}
       />
-      <path d={path(p90)} stroke="#14B8A6" strokeWidth="1.5" fill="none" />
-      <path d={path(median)} stroke="#0F766E" strokeWidth="2" fill="none" />
-      <path d={path(p10)} stroke="#0A0A0A" strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
+      <path d={path(p90)} stroke="#4ADE80" strokeWidth="1.5" fill="none" />
+      <path d={path(median)} stroke={GAIN} strokeWidth="2" fill="none" />
+      <path d={path(p10)} stroke={INK} strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
     </svg>
   );
 }

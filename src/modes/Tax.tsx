@@ -6,12 +6,17 @@ import { ModeHeader } from '@/components/Section';
 import { HeroNumber } from '@/components/HeroNumber';
 import { Callout } from '@/components/Callout';
 import { ShareButton } from '@/components/ShareButton';
-import { useScenarioStore } from '@/store/store';
+import { ModeExplainer } from '@/components/ModeExplainer';
+import { ScenarioPresets, type PresetChip } from '@/components/ScenarioPresets';
+import { PlainEnglish } from '@/components/PlainEnglish';
+import { useT } from '@/i18n';
+import { useScenarioStore, type TaxInputs } from '@/store/store';
 import { useUrlHydrate } from '@/store/urlSync';
 import { compareTaxAccounts, formatCurrency } from '@/engine';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
 
 export default function Tax() {
+  const t = useT();
   const tax = useScenarioStore((s) => s.tax);
   const setTax = useScenarioStore((s) => s.setTax);
 
@@ -30,37 +35,55 @@ export default function Tax() {
   const xLabels = result.taxable.yearlyBalances.map((_, i) => String(i));
 
   const series: Series[] = [
-    { label: 'Roth / TFSA', data: result.rothTfsa.yearlyBalances, color: '#0F766E', width: 2 },
+    { label: t.tax.accountNames.roth, data: result.rothTfsa.yearlyBalances, color: '#22C55E', width: 2 },
     {
-      label: 'Traditional / RRSP (pre-tax)',
+      label: t.tax.accountNames.traditional,
       data: result.traditionalRrsp.yearlyBalances,
-      color: '#6B7280',
+      color: '#8B92A5',
       width: 2,
       dashed: true,
     },
-    { label: 'Taxable brokerage', data: result.taxable.yearlyBalances, color: '#DC2626', width: 2 },
+    { label: t.tax.accountNames.taxable, data: result.taxable.yearlyBalances, color: '#EF4444', width: 2 },
   ];
 
   const winner = ['rothTfsa', 'traditionalRrsp', 'taxable']
     .map((k) => ({ k, v: result[k as keyof typeof result].afterTax }))
     .sort((a, b) => b.v - a.v)[0];
 
-  const winnerLabel =
-    winner.k === 'rothTfsa' ? 'Roth/TFSA' : winner.k === 'traditionalRrsp' ? 'Traditional/RRSP' : 'Taxable';
+  const winnerName =
+    winner.k === 'rothTfsa'
+      ? t.tax.accountNames.roth
+      : winner.k === 'traditionalRrsp'
+        ? t.tax.accountNames.traditional
+        : t.tax.accountNames.taxable;
+
+  const taxableGap = result.rothTfsa.afterTax - result.taxable.afterTax;
+
+  const presetItems = t.presets.tax.items;
+  const presets: PresetChip<TaxInputs>[] = [
+    { label: presetItems.young.label, blurb: presetItems.young.blurb, values: { principal: 0, monthlyContribution: 500, annualReturn: 0.08, years: 30, marginalTaxRate: 0.22, capitalGainsRate: 0.15 } },
+    { label: presetItems.peak.label, blurb: presetItems.peak.blurb, values: { principal: 50000, monthlyContribution: 2000, annualReturn: 0.08, years: 25, marginalTaxRate: 0.37, capitalGainsRate: 0.20 } },
+    { label: presetItems.rothMax.label, blurb: presetItems.rothMax.blurb, values: { principal: 0, monthlyContribution: 583, annualReturn: 0.08, years: 35, marginalTaxRate: 0.24, capitalGainsRate: 0.15 } },
+    { label: presetItems.midCareer.label, blurb: presetItems.midCareer.blurb, values: { principal: 100000, monthlyContribution: 1500, annualReturn: 0.07, years: 20, marginalTaxRate: 0.28, capitalGainsRate: 0.15 } },
+  ];
 
   return (
     <div>
       <ModeHeader
-        eyebrow="Mode 04 · Tax Shelter"
-        title="The account wrapper is worth more than the fund inside it."
-        subtitle="Same contribution, same return, three legal envelopes. The gap at year 30 is sometimes more than your principal."
+        eyebrow={t.tax.eyebrow}
+        title={t.tax.title}
+        subtitle={t.tax.subtitle}
         actions={<ShareButton params={tax as unknown as Record<string, number>} />}
       />
+
+      <ModeExplainer summary={t.tax.explainerSummary}>{t.tax.explainer}</ModeExplainer>
+
+      <ScenarioPresets<TaxInputs> presets={presets} onApply={(v) => setTax(v)} title={t.presets.tax.title} />
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
         <InputPanel>
           <NumberInput
-            label="Starting principal"
+            label={t.inputs.startingPrincipal}
             value={tax.principal}
             onChange={(v) => setTax({ principal: v })}
             prefix="$"
@@ -68,7 +91,7 @@ export default function Tax() {
             step={1000}
           />
           <NumberInput
-            label="Monthly contribution"
+            label={t.inputs.monthlyContribution}
             value={tax.monthlyContribution}
             onChange={(v) => setTax({ monthlyContribution: v })}
             prefix="$"
@@ -76,7 +99,7 @@ export default function Tax() {
             step={50}
           />
           <InputSlider
-            label="Annual return"
+            label={t.inputs.annualReturn}
             value={tax.annualReturn}
             onChange={(v) => setTax({ annualReturn: v })}
             min={0.01}
@@ -87,16 +110,16 @@ export default function Tax() {
             suffix="%"
           />
           <InputSlider
-            label="Years"
+            label={t.inputs.years}
             value={tax.years}
             onChange={(v) => setTax({ years: v })}
             min={1}
             max={50}
             step={1}
-            suffix=" yrs"
+            suffix={t.inputs.yrsSuffix}
           />
           <InputSlider
-            label="Marginal tax rate"
+            label={t.inputs.marginalTaxRate}
             value={tax.marginalTaxRate}
             onChange={(v) => setTax({ marginalTaxRate: v })}
             min={0}
@@ -105,9 +128,10 @@ export default function Tax() {
             displayMultiplier={100}
             displayDecimals={0}
             suffix="%"
+            hint={t.hints.marginalTaxBrackets}
           />
           <InputSlider
-            label="Capital gains rate"
+            label={t.inputs.capitalGainsRate}
             value={tax.capitalGainsRate}
             onChange={(v) => setTax({ capitalGainsRate: v })}
             min={0}
@@ -116,35 +140,41 @@ export default function Tax() {
             displayMultiplier={100}
             displayDecimals={0}
             suffix="%"
+            hint={t.hints.capitalGainsBrackets}
           />
         </InputPanel>
 
         <div>
           <div className="grid sm:grid-cols-3 gap-4 mb-6">
             <HeroNumber
-              label="Roth / TFSA (after-tax)"
+              label={t.tax.heroRoth}
               value={formatCurrency(result.rothTfsa.afterTax)}
               tone={winner.k === 'rothTfsa' ? 'positive' : 'default'}
             />
             <HeroNumber
-              label="Traditional / RRSP (after-tax)"
+              label={t.tax.heroTrad}
               value={formatCurrency(result.traditionalRrsp.afterTax)}
               tone={winner.k === 'traditionalRrsp' ? 'positive' : 'default'}
             />
             <HeroNumber
-              label="Taxable brokerage (after-tax)"
+              label={t.tax.heroTaxable}
               value={formatCurrency(result.taxable.afterTax)}
               tone={winner.k === 'taxable' ? 'positive' : 'negative'}
             />
           </div>
 
+          <PlainEnglish>
+            {t.tax.plainEnglish({
+              winner: winnerName,
+              rothAfterTax: formatCurrency(result.rothTfsa.afterTax),
+              taxableAfterTax: formatCurrency(result.taxable.afterTax),
+              gap: formatCurrency(taxableGap),
+            })}
+          </PlainEnglish>
+
           <div className="card">
             <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
-            <Callout>
-              <strong>{winnerLabel}</strong> wins this scenario. The Traditional/RRSP line is highest pre-tax because
-              the government temporarily owns some of it. Roth/TFSA usually wins when your future tax bracket is
-              equal-or-higher than today's.
-            </Callout>
+            <Callout>{t.tax.callout(winnerName)}</Callout>
           </div>
         </div>
       </div>

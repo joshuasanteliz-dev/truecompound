@@ -13,12 +13,12 @@ export function ModeCard({ to, title, pitch, preview, index }: Props) {
   return (
     <Link
       to={to}
-      className="group relative card hover:border-emerald hover:shadow-md transition-all flex flex-col gap-4"
+      className="group relative card hover:border-emerald hover:shadow-card-hover transition-all flex flex-col gap-4"
     >
       <div className="flex items-start justify-between">
         <div>
-          <div className="label mb-1">0{index + 1} · Mode</div>
-          <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+          <div className="label mb-1.5">0{index + 1} · Mode</div>
+          <h3 className="display text-xl text-ink">{title}</h3>
         </div>
         <span
           aria-hidden
@@ -28,7 +28,7 @@ export function ModeCard({ to, title, pitch, preview, index }: Props) {
         </span>
       </div>
       <p className="text-sm text-muted leading-relaxed">{pitch}</p>
-      <div className="h-24 mt-auto -mx-2 -mb-2 overflow-hidden rounded-lg bg-gray-50">{preview}</div>
+      <div className="h-24 mt-auto -mx-2 -mb-2 overflow-hidden rounded-lg bg-surface-2 border border-border">{preview}</div>
     </Link>
   );
 }

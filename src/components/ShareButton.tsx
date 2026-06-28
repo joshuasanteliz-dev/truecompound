@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '@/i18n';
 
 interface Props {
   /** A record of query-param-friendly key/value pairs encoding the current scenario. */
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export function ShareButton({ params }: Props) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   const share = async () => {
@@ -29,7 +31,7 @@ export function ShareButton({ params }: Props) {
         <polyline points="16 6 12 2 8 6" />
         <line x1="12" y1="2" x2="12" y2="15" />
       </svg>
-      {copied ? 'Copied!' : 'Share scenario'}
+      {copied ? t.inputs.copied : t.inputs.sharescenario}
     </button>
   );
 }

@@ -1,0 +1,50 @@
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/og-image.svg', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/Callout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/GrowthChart.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/HeroNumber.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/InputPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/InputSlider.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/Layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/ModeCard.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/Section.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/ShareButton.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/data/sp500.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/DCA.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/Debt.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/Inflation.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/MonteCarlo.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modes/Tax.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/About.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Landing.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/landingPreviews.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/styles.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tailwind.config.js', LF will be replaced by CRLF the next time Git touches it
+ README.md                      |   4 [32m+[m[31m-[m
+ index.html                     |  16 [32m++[m[31m--[m
+ public/og-image.svg            |   4 [32m+[m[31m-[m
+ src/App.tsx                    |  49 [32m++++++++[m[31m----[m
+ src/components/Callout.tsx     |   2 [32m+[m[31m-[m
+ src/components/GrowthChart.tsx |  34 [32m+++++[m[31m----[m
+ src/components/HeroNumber.tsx  |  16 [32m+++[m[31m-[m
+ src/components/InputPanel.tsx  |   7 [32m+[m[31m-[m
+ src/components/InputSlider.tsx |  17 [32m+++[m[31m--[m
+ src/components/Layout.tsx      | 101 [32m+++++++++++++++[m[31m----------[m
+ src/components/ModeCard.tsx    |   8 [32m+[m[31m-[m
+ src/components/Section.tsx     |  12 [32m+[m[31m--[m
+ src/components/ShareButton.tsx |   4 [32m+[m[31m-[m
+ src/data/sp500.ts              | 122 [32m+++++++++++++++++++++++++++[m[31m---[m
+ src/modes/DCA.tsx              | 105 [32m++++++++++++++++++[m[31m--------[m
+ src/modes/Debt.tsx             | 117 [32m++++++++++++++++[m[31m-------------[m
+ src/modes/Inflation.tsx        | 101 [32m+++++++++++++++++[m[31m--------[m
+ src/modes/MonteCarlo.tsx       | 164 [32m+++++++++++++++++++++++++++++[m[31m------------[m
+ src/modes/Tax.tsx              |  80 [32m+++++++++++++[m[31m-------[m
+ src/pages/About.tsx            |  63 [32m+++++[m[31m-----------[m
+ src/pages/Landing.tsx          |  94 [32m+++++++[m[31m----------------[m
+ src/pages/landingPreviews.tsx  |  36 [32m+++++[m[31m----[m
+ src/styles.css                 |  92 [32m++++++++++++++++++++[m[31m---[m
+ tailwind.config.js             |  36 [32m+++++++[m[31m--[m
+ tsconfig.app.tsbuildinfo       |   2 [32m+[m[31m-[m
+ 25 files changed, 835 insertions(+), 451 deletions(-)

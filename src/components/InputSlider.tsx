@@ -1,7 +1,8 @@
 import { useId } from 'react';
+import type { ReactNode } from 'react';
 
 interface Props {
-  label: string;
+  label: ReactNode;
   value: number;
   onChange: (v: number) => void;
   min: number;
@@ -14,7 +15,7 @@ interface Props {
   /** Multiply the slider value by this when rendering (e.g. show 0.07 as "7"). */
   displayMultiplier?: number;
   displayDecimals?: number;
-  hint?: string;
+  hint?: ReactNode;
 }
 
 export function InputSlider({
@@ -35,11 +36,11 @@ export function InputSlider({
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-1.5">
+      <div className="flex items-baseline justify-between mb-1.5 gap-2">
         <label htmlFor={id} className="label">
           {label}
         </label>
-        <div className="mono text-sm text-ink">
+        <div className="mono text-sm text-ink font-semibold">
           {prefix}
           {display}
           {suffix}
@@ -55,13 +56,13 @@ export function InputSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full"
       />
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted leading-snug">{hint}</p>}
     </div>
   );
 }
 
 interface NumberInputProps {
-  label: string;
+  label: ReactNode;
   value: number;
   onChange: (v: number) => void;
   prefix?: string;
@@ -69,7 +70,7 @@ interface NumberInputProps {
   min?: number;
   max?: number;
   step?: number;
-  hint?: string;
+  hint?: ReactNode;
 }
 
 export function NumberInput({ label, value, onChange, prefix, suffix, min, max, step, hint }: NumberInputProps) {
@@ -101,7 +102,7 @@ export function NumberInput({ label, value, onChange, prefix, suffix, min, max, 
           </span>
         )}
       </div>
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted leading-snug">{hint}</p>}
     </div>
   );
 }

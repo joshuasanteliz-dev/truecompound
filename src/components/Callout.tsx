@@ -9,6 +9,6 @@ interface Props {
  */
 export function Callout({ children }: Props) {
   return (
-    <p className="mt-4 border-l-2 border-emerald pl-4 italic text-sm text-muted leading-relaxed">{children}</p>
+    <p className="mt-4 border-l-2 border-emerald pl-4 italic text-sm text-ink-dim leading-relaxed">{children}</p>
   );
 }

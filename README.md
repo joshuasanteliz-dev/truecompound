@@ -1,6 +1,6 @@
-# WhatIfMoney
+# TrueCompound
 
-A compound interest suite — five focused financial visualizations that share a single calculation engine. Built to put back what most retirement calculators leave out: inflation drag, sequence-of-returns risk, tax-wrapper differences, and the symmetry between debt and investment growth.
+TrueCompound is a compound-growth calculator suite — five focused financial visualizations that share a single calculation engine. Built to reveal the real value behind the number after inflation drag, sequence-of-returns risk, tax-wrapper differences, and the symmetry between debt and investment growth.
 
 > "Most calculators lie by omission. These don't."
 

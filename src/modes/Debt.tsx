@@ -6,18 +6,18 @@ import { ModeHeader } from '@/components/Section';
 import { HeroNumber } from '@/components/HeroNumber';
 import { Callout } from '@/components/Callout';
 import { ShareButton } from '@/components/ShareButton';
-import { useScenarioStore } from '@/store/store';
+import { ModeExplainer } from '@/components/ModeExplainer';
+import { ScenarioPresets, type PresetChip } from '@/components/ScenarioPresets';
+import { PlainEnglish } from '@/components/PlainEnglish';
+import { SanityWarning } from '@/components/SanityWarning';
+import { useT } from '@/i18n';
+import { useScenarioStore, type DebtInputs } from '@/store/store';
 import { useUrlHydrate } from '@/store/urlSync';
 import { amortizeDebt, compound, creditCardMinimumSchedule, formatCurrency, formatMonths } from '@/engine';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
 
-const PRESETS = [
-  { id: 'cc-trap', label: 'Credit card minimum trap', balance: 10000, rate: 0.24, years: 30, monthlyAmount: 0 },
-  { id: 'mortgage', label: 'Mortgage-style 6%', balance: 300000, rate: 0.06, years: 30, monthlyAmount: 1800 },
-  { id: 'student', label: 'Student loan 7%', balance: 30000, rate: 0.07, years: 10, monthlyAmount: 350 },
-];
-
 export default function Debt() {
+  const t = useT();
   const debt = useScenarioStore((s) => s.debt);
   const setDebt = useScenarioStore((s) => s.setDebt);
 
@@ -60,53 +60,51 @@ export default function Debt() {
   const xLabels = result.debtMonthly.map((_, i) => (i % 12 === 0 ? String(i / 12) : ''));
 
   const debtSeries: Series[] = [
-    { label: 'Debt balance', data: result.debtMonthly, color: '#DC2626', width: 2 },
+    { label: t.debt.debtBalance, data: result.debtMonthly, color: '#EF4444', width: 2 },
   ];
   const investSeries: Series[] = [
-    { label: 'Investment balance', data: result.investmentMonthly, color: '#0F766E', width: 2 },
+    { label: t.debt.investmentBalance, data: result.investmentMonthly, color: '#22C55E', width: 2 },
   ];
 
-  const applyPreset = (id: string) => {
-    const p = PRESETS.find((x) => x.id === id);
-    if (p) setDebt({ balance: p.balance, rate: p.rate, years: p.years, monthlyAmount: p.monthlyAmount });
-  };
+  const monthlyInterest = (debounced.balance * debounced.rate) / 12;
+  const paymentTooLow = debounced.monthlyAmount > 0 && debounced.monthlyAmount <= monthlyInterest;
+  const finalInvestment = result.investmentMonthly[result.investmentMonthly.length - 1];
+
+  const presetItems = t.presets.debt.items;
+  const presets: PresetChip<DebtInputs>[] = [
+    { label: presetItems.ccTrap.label, blurb: presetItems.ccTrap.blurb, values: { balance: 10000, rate: 0.24, years: 30, monthlyAmount: 0 } },
+    { label: presetItems.mortgage.label, blurb: presetItems.mortgage.blurb, values: { balance: 300000, rate: 0.06, years: 30, monthlyAmount: 1800 } },
+    { label: presetItems.student.label, blurb: presetItems.student.blurb, values: { balance: 30000, rate: 0.07, years: 10, monthlyAmount: 350 } },
+    { label: presetItems.aggressive.label, blurb: presetItems.aggressive.blurb, values: { balance: 25000, rate: 0.12, years: 5, monthlyAmount: 1000 } },
+    { label: presetItems.car.label, blurb: presetItems.car.blurb, values: { balance: 28000, rate: 0.08, years: 5, monthlyAmount: 570 } },
+  ];
 
   return (
     <div>
       <ModeHeader
-        eyebrow="Mode 03 · Debt Mirror"
-        title="The same math runs in both directions."
-        subtitle="Compounding is symmetric. The investment chart and the debt chart are the same equation with the sign flipped."
+        eyebrow={t.debt.eyebrow}
+        title={t.debt.title}
+        subtitle={t.debt.subtitle}
         actions={<ShareButton params={debt as unknown as Record<string, number>} />}
       />
 
+      <ModeExplainer summary={t.debt.explainerSummary}>{t.debt.explainer}</ModeExplainer>
+
+      <ScenarioPresets<DebtInputs> presets={presets} onApply={(v) => setDebt(v)} title={t.presets.debt.title} />
+
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
         <InputPanel>
-          <div>
-            <label className="label block mb-1.5" htmlFor="preset">
-              Preset
-            </label>
-            <select id="preset" onChange={(e) => applyPreset(e.target.value)} className="input-number" defaultValue="">
-              <option value="" disabled>
-                Load a scenario…
-              </option>
-              {PRESETS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
           <NumberInput
-            label="Balance"
+            label={t.inputs.balance}
             value={debt.balance}
             onChange={(v) => setDebt({ balance: v })}
             prefix="$"
             min={0}
             step={500}
+            hint={t.hints.debtBalance}
           />
           <InputSlider
-            label="Interest rate"
+            label={t.inputs.apr}
             value={debt.rate}
             onChange={(v) => setDebt({ rate: v })}
             min={0.01}
@@ -115,63 +113,82 @@ export default function Debt() {
             displayMultiplier={100}
             displayDecimals={1}
             suffix="%"
+            hint={t.hints.debtRate}
           />
           <NumberInput
-            label="Monthly payment"
+            label={t.inputs.monthlyPayment}
             value={debt.monthlyAmount}
             onChange={(v) => setDebt({ monthlyAmount: v })}
             prefix="$"
             min={0}
             step={25}
-            hint="Set 0 to use 2% credit-card minimum."
+            hint={t.hints.debtPayment}
           />
           <InputSlider
-            label="Time axis (max)"
+            label={t.inputs.timeAxisMax}
             value={debt.years}
             onChange={(v) => setDebt({ years: v })}
             min={5}
             max={40}
             step={1}
-            suffix=" yrs"
+            suffix={t.inputs.yrsSuffix}
           />
         </InputPanel>
 
         <div>
+          <SanityWarning when={paymentTooLow} tone="danger" title={t.debt.warningTitle}>
+            {t.debt.warningBody({
+              rate: `${(debounced.rate * 100).toFixed(1)}%`,
+              balance: formatCurrency(debounced.balance),
+              interest: formatCurrency(monthlyInterest),
+              payment: formatCurrency(debounced.monthlyAmount),
+            })}
+          </SanityWarning>
+
           <div className="grid sm:grid-cols-3 gap-4 mb-6">
             <HeroNumber
-              label="Investment becomes"
-              value={formatCurrency(result.investmentMonthly[result.investmentMonthly.length - 1])}
+              label={t.debt.heroInvestmentBecomes}
+              value={formatCurrency(finalInvestment)}
               tone="positive"
-              sublabel={`At ${(debounced.rate * 100).toFixed(1)}%, no contributions`}
+              sublabel={t.debt.heroInvestmentBecomesSub(`${(debounced.rate * 100).toFixed(1)}%`)}
             />
             <HeroNumber
-              label="Debt costs"
+              label={t.debt.heroDebtCosts}
               value={Number.isFinite(result.debtResult.totalInterest) ? formatCurrency(result.debtResult.totalInterest) : '∞'}
               tone="negative"
-              sublabel="Total interest paid"
+              sublabel={t.debt.heroDebtCostsSub}
             />
             <HeroNumber
-              label="Time to payoff"
+              label={t.debt.heroTime}
               value={formatMonths(result.debtResult.months)}
               tone={result.debtResult.paidOff ? 'default' : 'negative'}
-              sublabel={result.debtResult.paidOff ? '' : 'Payment too low — debt grows'}
+              sublabel={result.debtResult.paidOff ? '' : t.debt.heroTimeSubNeverPaid}
             />
           </div>
 
+          <PlainEnglish>
+            {t.debt.plainEnglish({
+              balance: formatCurrency(debounced.balance),
+              ratePct: `${(debounced.rate * 100).toFixed(1)}%`,
+              payment: formatCurrency(debounced.monthlyAmount || monthlyInterest * 1.2),
+              paidOff: result.debtResult.paidOff,
+              timeText: formatMonths(result.debtResult.months),
+              interest: formatCurrency(result.debtResult.totalInterest),
+              investmentEnd: formatCurrency(finalInvestment),
+            })}
+          </PlainEnglish>
+
           <div className="grid md:grid-cols-2 gap-6">
             <div className="card">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald mb-3">As an investment</h3>
+              <h3 className="label text-emerald mb-3">{t.debt.asInvestment}</h3>
               <GrowthChart series={investSeries} xLabels={xLabels} xAxisLabel="Year" height={300} allowLogScale={false} />
             </div>
             <div className="card">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-loss mb-3">As a debt</h3>
+              <h3 className="label text-loss mb-3">{t.debt.asDebt}</h3>
               <GrowthChart series={debtSeries} xLabels={xLabels} xAxisLabel="Year" height={300} allowLogScale={false} />
             </div>
           </div>
-          <Callout>
-            The shape is the same — exponential. The credit-card minimum-payment trap is what happens when your
-            payment is barely above the interest line. The principal moves a millimeter while time moves a mile.
-          </Callout>
+          <Callout>{t.debt.callout}</Callout>
         </div>
       </div>
     </div>

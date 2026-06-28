@@ -61,7 +61,7 @@ export function GrowthChart({
         pointRadius: 0,
         pointHoverRadius: 4,
         pointHoverBackgroundColor: s.color,
-        pointHoverBorderColor: '#fff',
+        pointHoverBorderColor: '#0B0E14',
         pointHoverBorderWidth: 2,
         tension: 0.18,
         order: idx,
@@ -79,14 +79,16 @@ export function GrowthChart({
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0A0A0A',
-          titleColor: '#FAFAF7',
-          bodyColor: '#FAFAF7',
+          backgroundColor: '#1A1E27',
+          titleColor: '#F5F7FA',
+          bodyColor: '#C9CFDB',
+          borderColor: '#363B47',
+          borderWidth: 1,
           padding: 12,
           cornerRadius: 8,
           displayColors: true,
           boxPadding: 4,
-          titleFont: { family: 'Inter', size: 13, weight: 600 },
+          titleFont: { family: 'Inter', size: 13, weight: 700 },
           bodyFont: { family: 'JetBrains Mono', size: 12 },
           callbacks: {
             title: (items) => `${xAxisLabel} ${items[0].label}`,
@@ -99,19 +101,19 @@ export function GrowthChart({
       },
       scales: {
         x: {
-          grid: { color: 'rgba(0,0,0,0.04)' },
+          grid: { color: 'rgba(255,255,255,0.04)' },
           border: { display: false },
-          ticks: { color: '#6B7280', font: { family: 'JetBrains Mono', size: 11 }, maxRotation: 0, autoSkipPadding: 18 },
+          ticks: { color: '#8B92A5', font: { family: 'JetBrains Mono', size: 11 }, maxRotation: 0, autoSkipPadding: 18 },
           title: xAxisLabel
-            ? { display: true, text: xAxisLabel, color: '#6B7280', font: { family: 'Inter', size: 11 } }
+            ? { display: true, text: xAxisLabel, color: '#8B92A5', font: { family: 'Inter', size: 11, weight: 600 } }
             : undefined,
         },
         y: {
           type: scale,
-          grid: { color: 'rgba(0,0,0,0.06)' },
+          grid: { color: 'rgba(255,255,255,0.06)' },
           border: { display: false },
           ticks: {
-            color: '#6B7280',
+            color: '#8B92A5',
             font: { family: 'JetBrains Mono', size: 11 },
             callback: (v) => {
               const n = Number(v);
@@ -119,7 +121,7 @@ export function GrowthChart({
             },
           },
           title: yAxisLabel
-            ? { display: true, text: yAxisLabel, color: '#6B7280', font: { family: 'Inter', size: 11 } }
+            ? { display: true, text: yAxisLabel, color: '#8B92A5', font: { family: 'Inter', size: 11, weight: 600 } }
             : undefined,
         },
       },
@@ -129,10 +131,10 @@ export function GrowthChart({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
           {series.map((s) => (
-            <div key={s.label} className="flex items-center gap-1.5 text-xs text-muted">
+            <div key={s.label} className="flex items-center gap-1.5 text-xs text-ink-dim">
               <span
                 className="inline-block w-3 h-[3px] rounded-sm"
                 style={{
@@ -146,18 +148,18 @@ export function GrowthChart({
           ))}
         </div>
         {allowLogScale && (
-          <div className="flex rounded-md border border-gray-200 p-0.5 text-xs">
+          <div className="flex rounded-md border border-border bg-surface-2 p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setScale('linear')}
-              className={`px-2 py-1 rounded ${scale === 'linear' ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`}
+              className={`px-2 py-1 rounded font-semibold ${scale === 'linear' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'}`}
             >
               Linear
             </button>
             <button
               type="button"
               onClick={() => setScale('logarithmic')}
-              className={`px-2 py-1 rounded ${scale === 'logarithmic' ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`}
+              className={`px-2 py-1 rounded font-semibold ${scale === 'logarithmic' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'}`}
             >
               Log
             </button>
