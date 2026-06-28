@@ -79,6 +79,56 @@ export default function Inflation() {
 
       <ScenarioPresets<InflationInputs> presets={presets} onApply={(v) => setInflation(v)} title={t.presets.inflation.title} />
 
+      <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+        <div className="label mb-4 text-emerald">REAL VALUE SUMMARY</div>
+
+        <SanityWarning when={losingPower} tone="warning" title={t.inflation.warningTitle}>
+          {t.inflation.warningBody({
+            nominal: formatPercent(debounced.annualReturn),
+            inflation: formatPercent(debounced.inflationRate),
+            net: formatPercent(-realReturn),
+          })}
+        </SanityWarning>
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.75fr)] lg:items-start">
+          <div className="grid gap-4">
+            <section className="card border-emerald/30 bg-emerald/5">
+              <div className="label text-emerald">{t.inflation.heroReal}</div>
+              <div className="mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl">
+                {formatCurrency(finalReal)}
+              </div>
+              <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
+            </section>
+
+            <PlainEnglish>
+              {t.inflation.plainEnglish({
+                years: debounced.years,
+                nominal: formatCurrency(finalNominal),
+                real: formatCurrency(finalReal),
+                gap: formatCurrency(gap),
+                realReturn: formatPercent(realReturn),
+                annualReturn: formatPercent(debounced.annualReturn),
+              })}
+            </PlainEnglish>
+          </div>
+
+          <div className="grid gap-4">
+            <HeroNumber
+              label={t.inflation.heroNominal}
+              value={formatCurrency(finalNominal)}
+              tone="default"
+              sublabel={t.inflation.heroNominalSub}
+            />
+            <HeroNumber
+              label={t.inflation.heroDrag}
+              value={`−${formatCurrency(gap)}`}
+              tone="negative"
+              sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
+            />
+          </div>
+        </div>
+      </section>
+
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
         <InputPanel>
           <NumberInput
@@ -132,55 +182,9 @@ export default function Inflation() {
           />
         </InputPanel>
 
-        <div>
-          <SanityWarning when={losingPower} tone="warning" title={t.inflation.warningTitle}>
-            {t.inflation.warningBody({
-              nominal: formatPercent(debounced.annualReturn),
-              inflation: formatPercent(debounced.inflationRate),
-              net: formatPercent(-realReturn),
-            })}
-          </SanityWarning>
-
-          <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.85fr)]">
-            <section className="card border-emerald/30 bg-emerald/5">
-              <div className="label text-emerald">{t.inflation.heroReal}</div>
-              <div className="mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl">
-                {formatCurrency(finalReal)}
-              </div>
-              <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
-            </section>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              <HeroNumber
-                label={t.inflation.heroNominal}
-                value={formatCurrency(finalNominal)}
-                tone="default"
-                sublabel={t.inflation.heroNominalSub}
-              />
-              <HeroNumber
-                label={t.inflation.heroDrag}
-                value={`−${formatCurrency(gap)}`}
-                tone="negative"
-                sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
-              />
-            </div>
-          </div>
-
-          <PlainEnglish>
-            {t.inflation.plainEnglish({
-              years: debounced.years,
-              nominal: formatCurrency(finalNominal),
-              real: formatCurrency(finalReal),
-              gap: formatCurrency(gap),
-              realReturn: formatPercent(realReturn),
-              annualReturn: formatPercent(debounced.annualReturn),
-            })}
-          </PlainEnglish>
-
-          <div className="card">
-            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
-            <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
-          </div>
+        <div className="card">
+          <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+          <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
         </div>
       </div>
     </div>
