@@ -38,6 +38,8 @@ interface Props {
   currency?: boolean;
   motion?: ChartMotion;
   respectReducedMotion?: boolean;
+  formatYTick?: (value: number) => string;
+  formatTooltipValue?: (value: number) => string;
 }
 
 export function GrowthChart({
@@ -50,6 +52,8 @@ export function GrowthChart({
   currency = true,
   motion = 'default',
   respectReducedMotion = false,
+  formatYTick,
+  formatTooltipValue,
 }: Props) {
   const [scale, setScale] = useState<'linear' | 'logarithmic'>('linear');
   const reducedMotion =
@@ -105,7 +109,9 @@ export function GrowthChart({
             title: (items) => `${xAxisLabel} ${items[0].label}`,
             label: (ctx) => {
               const v = ctx.parsed.y ?? 0;
-              return `  ${ctx.dataset.label}: ${currency ? formatCurrency(v) : v.toFixed(2)}`;
+              return `  ${ctx.dataset.label}: ${
+                formatTooltipValue ? formatTooltipValue(v) : currency ? formatCurrency(v) : v.toFixed(2)
+              }`;
             },
           },
         },
@@ -128,7 +134,7 @@ export function GrowthChart({
             font: { family: 'JetBrains Mono', size: 11 },
             callback: (v) => {
               const n = Number(v);
-              return currency ? formatCurrencyCompact(n) : String(n);
+              return formatYTick ? formatYTick(n) : currency ? formatCurrencyCompact(n) : String(n);
             },
           },
           title: yAxisLabel
@@ -137,7 +143,7 @@ export function GrowthChart({
         },
       },
     }),
-    [scale, xAxisLabel, yAxisLabel, currency, animationDuration],
+    [scale, xAxisLabel, yAxisLabel, currency, animationDuration, formatYTick, formatTooltipValue],
   );
 
   return (

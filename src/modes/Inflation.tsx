@@ -13,7 +13,7 @@ import { SanityWarning } from '@/components/SanityWarning';
 import { useT } from '@/i18n';
 import { useScenarioStore, type InflationInputs } from '@/store/store';
 import { useUrlHydrate } from '@/store/urlSync';
-import { applyInflation, compound, formatCurrency, formatPercent } from '@/engine';
+import { applyInflation, compound, formatCurrency, formatCurrencyCompact, formatCurrencyForDisplay, formatPercent } from '@/engine';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
 // @ts-ignore Vite resolves CSS modules; this project does not declare module CSS types.
 import styles from './Inflation.module.css';
@@ -24,26 +24,33 @@ function RecalcPulse({
   valueKey,
   tone = 'muted',
   className = '',
+  title,
   children,
 }: {
   valueKey: string | number;
   tone?: RecalcPulseTone;
   className?: string;
+  title?: string;
   children: ReactNode;
 }) {
   const toneClass =
     tone === 'emerald' ? styles.recalcPulseEmerald : tone === 'red' ? styles.recalcPulseRed : styles.recalcPulseMuted;
 
   return (
-    <span key={valueKey} className={`${styles.recalcPulse} ${toneClass} ${className}`}>
+    <span key={valueKey} className={`${styles.recalcPulse} ${toneClass} ${className}`} title={title}>
       {children}
     </span>
   );
 }
 
-function recalcTextValue<T extends string | number>(valueKey: string | number, tone: RecalcPulseTone, children: ReactNode) {
+function recalcTextValue<T extends string | number>(
+  valueKey: string | number,
+  tone: RecalcPulseTone,
+  children: ReactNode,
+  title?: string
+) {
   return (
-    <RecalcPulse valueKey={valueKey} tone={tone}>
+    <RecalcPulse valueKey={valueKey} tone={tone} title={title}>
       {children}
     </RecalcPulse>
   ) as unknown as T;
@@ -75,6 +82,14 @@ export default function Inflation() {
   const gap = finalNominal - finalReal;
   const realReturn = (1 + debounced.annualReturn) / (1 + debounced.inflationRate) - 1;
   const losingPower = realReturn < 0;
+  const exactNominal = formatCurrency(finalNominal);
+  const exactReal = formatCurrency(finalReal);
+  const exactGap = formatCurrency(gap);
+  const displayNominal = formatCurrencyForDisplay(finalNominal);
+  const displayReal = formatCurrencyForDisplay(finalReal);
+  const displayGap = formatCurrencyForDisplay(gap);
+  const displayDrag = gap >= 0 ? `-${displayGap}` : displayGap;
+  const exactDrag = gap >= 0 ? `-${exactGap}` : exactGap;
 
   const presetItems = t.presets.inflation.items;
   const presets: PresetChip<InflationInputs>[] = [
@@ -126,9 +141,12 @@ export default function Inflation() {
           <div className="grid gap-4">
             <section className="card border-emerald/30 bg-emerald/5">
               <div className="label text-emerald">{t.inflation.heroReal}</div>
-              <div className="mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl">
-                <RecalcPulse valueKey={finalReal} tone="emerald">
-                  {formatCurrency(finalReal)}
+              <div
+                className={`mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl ${styles.resultValue}`}
+                title={exactReal}
+              >
+                <RecalcPulse valueKey={finalReal} tone="emerald" title={exactReal}>
+                  {displayReal}
                 </RecalcPulse>
               </div>
               <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
@@ -137,9 +155,9 @@ export default function Inflation() {
             <PlainEnglish>
               {t.inflation.plainEnglish({
                 years: recalcTextValue<number>(debounced.years, 'muted', debounced.years),
-                nominal: recalcTextValue<string>(finalNominal, 'muted', formatCurrency(finalNominal)),
-                real: recalcTextValue<string>(finalReal, 'emerald', formatCurrency(finalReal)),
-                gap: recalcTextValue<string>(gap, 'red', formatCurrency(gap)),
+                nominal: recalcTextValue<string>(finalNominal, 'muted', displayNominal, exactNominal),
+                real: recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal),
+                gap: recalcTextValue<string>(gap, 'red', displayGap, exactGap),
                 realReturn: recalcTextValue<string>(realReturn, 'muted', formatPercent(realReturn)),
                 annualReturn: recalcTextValue<string>(
                   debounced.annualReturn,
@@ -154,8 +172,8 @@ export default function Inflation() {
             <HeroNumber
               label={t.inflation.heroNominal}
               value={
-                <RecalcPulse valueKey={finalNominal} tone="muted">
-                  {formatCurrency(finalNominal)}
+                <RecalcPulse valueKey={finalNominal} tone="muted" title={exactNominal}>
+                  {displayNominal}
                 </RecalcPulse>
               }
               tone="default"
@@ -164,8 +182,8 @@ export default function Inflation() {
             <HeroNumber
               label={t.inflation.heroDrag}
               value={
-                <RecalcPulse valueKey={gap} tone="red">
-                  {`−${formatCurrency(gap)}`}
+                <RecalcPulse valueKey={gap} tone="red" title={exactDrag}>
+                  {displayDrag}
                 </RecalcPulse>
               }
               tone="negative"
@@ -245,17 +263,25 @@ export default function Inflation() {
             <div className={styles.proofStat}>
               <div className="label text-muted">{t.inflation.heroDrag}</div>
               <div className="mono mt-1 text-sm font-semibold text-red-300">
-                <RecalcPulse valueKey={gap} tone="red">
-                  -{formatCurrency(gap)}
+                <RecalcPulse valueKey={gap} tone="red" title={exactDrag}>
+                  {displayDrag}
                 </RecalcPulse>
               </div>
             </div>
           </div>
 
           <div className={styles.proofChartFrame}>
-            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" motion="proof" respectReducedMotion />
+            <GrowthChart
+              series={series}
+              xLabels={xLabels}
+              xAxisLabel="Year"
+              motion="proof"
+              respectReducedMotion
+              formatYTick={formatCurrencyCompact}
+              formatTooltipValue={formatCurrencyForDisplay}
+            />
           </div>
-          <Callout>{t.inflation.callout(recalcTextValue<string>(finalReal, 'emerald', formatCurrency(finalReal)))}</Callout>
+          <Callout>{t.inflation.callout(recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal))}</Callout>
         </div>
       </div>
     </div>
