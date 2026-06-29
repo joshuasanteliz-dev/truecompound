@@ -109,6 +109,7 @@
   /* Native <details> styling */
   .mode-explainer {
     @apply rounded-xl border border-border bg-surface;
+    interpolate-size: allow-keywords;
   }
   .mode-explainer > summary {
     @apply cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-ink-dim hover:text-ink transition-colors;
@@ -117,10 +118,41 @@
     display: none;
   }
   .mode-explainer > summary .chev {
-    transition: transform 0.2s ease;
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .mode-explainer[open] > summary .chev {
     transform: rotate(180deg);
+  }
+  .mode-explainer::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 180ms ease-out,
+      content-visibility 220ms allow-discrete;
+  }
+  .mode-explainer[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+  .mode-explainer > .mode-explainer__body {
+    transform: translateY(-2px);
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 180ms ease-out;
+  }
+  .mode-explainer[open] > .mode-explainer__body {
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mode-explainer,
+    .mode-explainer::details-content,
+    .mode-explainer > summary .chev,
+    .mode-explainer > .mode-explainer__body {
+      transition: none;
+      transform: none;
+    }
   }
 }
 

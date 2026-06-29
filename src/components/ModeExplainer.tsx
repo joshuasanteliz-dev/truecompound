@@ -24,7 +24,7 @@ export function ModeExplainer({ summary = 'How this mode works — full explanat
           <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </summary>
-      <div className="px-4 pb-4 pt-1 text-sm text-ink-dim leading-relaxed space-y-3 border-t border-border">
+      <div className="mode-explainer__body px-4 pb-4 pt-1 text-sm text-ink-dim leading-relaxed space-y-3 border-t border-border">
         {children}
       </div>
     </details>
