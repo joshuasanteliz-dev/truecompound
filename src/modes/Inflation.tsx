@@ -204,7 +204,7 @@ export default function Inflation() {
           </div>
 
           <div className={styles.proofChartFrame}>
-            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" motion="proof" respectReducedMotion />
           </div>
           <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
         </div>

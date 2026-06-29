@@ -25,6 +25,8 @@ export interface Series {
   width?: number;
 }
 
+type ChartMotion = 'default' | 'proof' | 'none';
+
 interface Props {
   series: Series[];
   xLabels: (string | number)[];
@@ -34,6 +36,8 @@ interface Props {
   allowLogScale?: boolean;
   /** When true (default), values are rendered as currency. Set false for raw numbers. */
   currency?: boolean;
+  motion?: ChartMotion;
+  respectReducedMotion?: boolean;
 }
 
 export function GrowthChart({
@@ -44,8 +48,15 @@ export function GrowthChart({
   height = 380,
   allowLogScale = true,
   currency = true,
+  motion = 'default',
+  respectReducedMotion = false,
 }: Props) {
   const [scale, setScale] = useState<'linear' | 'logarithmic'>('linear');
+  const reducedMotion =
+    respectReducedMotion &&
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animationDuration = reducedMotion || motion === 'none' ? 0 : motion === 'proof' ? 240 : 350;
 
   const data = useMemo<ChartData<'line'>>(
     () => ({
@@ -74,7 +85,7 @@ export function GrowthChart({
     () => ({
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 350, easing: 'easeOutQuart' },
+      animation: { duration: animationDuration, easing: 'easeOutQuart' },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
@@ -126,7 +137,7 @@ export function GrowthChart({
         },
       },
     }),
-    [scale, xAxisLabel, yAxisLabel, currency],
+    [scale, xAxisLabel, yAxisLabel, currency, animationDuration],
   );
 
   return (
