@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { GrowthChart, type Series } from '@/components/GrowthChart';
 import { NumberInput, InputSlider } from '@/components/InputSlider';
 import { InputPanel } from '@/components/InputPanel';
@@ -15,6 +15,79 @@ import { useUrlHydrate } from '@/store/urlSync';
 import { calculateDCA, calculateLumpSum, formatCurrency } from '@/engine';
 import { RETURN_PRESETS } from '@/data/sp500';
 import { useDebouncedValue } from '@/components/useDebouncedValue';
+
+type RecalcPulseTone = 'emerald' | 'muted';
+
+const recalcPulseStyles = `
+@keyframes dcaRecalcPulse {
+  0% {
+    opacity: 0.68;
+    transform: translateY(3px);
+    text-shadow: 0 0 0 transparent;
+  }
+
+  48% {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--dca-recalc-glow);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 0 transparent;
+  }
+}
+
+.dca-recalc-pulse {
+  --dca-recalc-glow: transparent;
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
+  animation: dcaRecalcPulse 190ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform, text-shadow;
+}
+
+.dca-recalc-pulse--emerald {
+  --dca-recalc-glow: rgba(34, 197, 94, 0.34);
+}
+
+.dca-recalc-pulse--muted {
+  --dca-recalc-glow: rgba(148, 163, 184, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dca-recalc-pulse {
+    animation: none;
+  }
+}
+`;
+
+function RecalcPulse({
+  valueKey,
+  tone = 'muted',
+  children,
+}: {
+  valueKey: string | number;
+  tone?: RecalcPulseTone;
+  children: ReactNode;
+}) {
+  return (
+    <span key={valueKey} className={`dca-recalc-pulse dca-recalc-pulse--${tone}`}>
+      {children}
+    </span>
+  );
+}
+
+function recalcTextValue<T extends string | number>(valueKey: string | number, tone: RecalcPulseTone, children: ReactNode) {
+  return (
+    <RecalcPulse valueKey={valueKey} tone={tone}>
+      {children}
+    </RecalcPulse>
+  ) as unknown as T;
+}
 
 export default function DCA() {
   const t = useT();
@@ -63,15 +136,25 @@ export default function DCA() {
     { label: presetItems.japan.label, blurb: presetItems.japan.blurb, values: { totalCapital: 120000, deploymentMonths: 24, presetId: 'nikkei-1990-2010' } },
   ];
 
-  // Group historical-series options by their translated group label
-  const seriesByGroup = RETURN_PRESETS.reduce<Record<string, typeof RETURN_PRESETS>>((acc, p) => {
-    const group = t.historicalSeries[p.id]?.group ?? 'Other';
-    (acc[group] = acc[group] ?? []).push(p);
-    return acc;
-  }, {});
+  // Group historical-series options by their translated group label.
+  const seriesGroups = RETURN_PRESETS.reduce<Array<{ label: string; items: typeof RETURN_PRESETS }>>((groups, p) => {
+    const groupLabel = t.historicalSeries[p.id]?.group ?? p.group ?? 'Other';
+    const existing = groups.find((group) => group.label === groupLabel);
+    if (existing) {
+      existing.items.push(p);
+    } else {
+      groups.push({ label: groupLabel, items: [p] });
+    }
+    return groups;
+  }, []);
+  const selectedPreset = RETURN_PRESETS.find((p) => p.id === dca.presetId) ?? preset;
+  const activeGroupLabel = t.historicalSeries[selectedPreset.id]?.group ?? selectedPreset.group ?? 'Other';
+  const activeGroup = seriesGroups.find((group) => group.label === activeGroupLabel) ?? seriesGroups[0];
 
   return (
     <div>
+      <style>{recalcPulseStyles}</style>
+
       <ModeHeader
         eyebrow={t.dca.eyebrow}
         title={t.dca.title}
@@ -102,20 +185,22 @@ export default function DCA() {
                   isCloseResult ? 'text-ink' : 'text-emerald'
                 }`}
               >
-                {formatCurrency(diffAbs)}
+                <RecalcPulse valueKey={diffAbs} tone={isCloseResult ? 'muted' : 'emerald'}>
+                  {formatCurrency(diffAbs)}
+                </RecalcPulse>
               </div>
               <div className="mt-2 text-sm text-muted">{lumpWins ? t.dca.heroSubLump : t.dca.heroSubDCA}</div>
             </section>
 
             <PlainEnglish>
               {t.dca.plainEnglish({
-                capital: formatCurrency(debounced.totalCapital),
+                capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
                 presetLabel,
-                finalLump: formatCurrency(finalLump),
-                finalDCA: formatCurrency(finalDCA),
-                deployMonths: debounced.deploymentMonths,
+                finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
+                finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
+                deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
                 winnerLabel,
-                diff: formatCurrency(diffAbs),
+                diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
                 lumpWins,
               })}
             </PlainEnglish>
@@ -124,66 +209,113 @@ export default function DCA() {
           <div className="grid gap-4">
             <HeroNumber
               label={t.dca.heroLump}
-              value={formatCurrency(finalLump)}
+              value={
+                <RecalcPulse valueKey={finalLump} tone={lumpWins && !isCloseResult ? 'emerald' : 'muted'}>
+                  {formatCurrency(finalLump)}
+                </RecalcPulse>
+              }
               tone={lumpWins && !isCloseResult ? 'positive' : 'default'}
             />
             <HeroNumber
               label={t.dca.heroDCA}
-              value={formatCurrency(finalDCA)}
+              value={
+                <RecalcPulse valueKey={finalDCA} tone={!lumpWins && !isCloseResult ? 'emerald' : 'muted'}>
+                  {formatCurrency(finalDCA)}
+                </RecalcPulse>
+              }
               tone={!lumpWins && !isCloseResult ? 'positive' : 'default'}
             />
           </div>
         </div>
       </section>
 
-      <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
-        <InputPanel>
-          <NumberInput
-            label={t.inputs.totalCapital}
-            value={dca.totalCapital}
-            onChange={(v) => setDCA({ totalCapital: v })}
-            prefix="$"
-            min={0}
-            step={1000}
-            hint={t.hints.totalCapital}
-          />
-          <InputSlider
-            label={t.inputs.deploymentWindow}
-            value={dca.deploymentMonths}
-            onChange={(v) => setDCA({ deploymentMonths: v })}
-            min={1}
-            max={Math.min(60, preset.monthlyReturns.length)}
-            step={1}
-            suffix={t.inputs.months}
-            hint={t.hints.deploymentWindow}
-          />
-
-          <div>
-            <label className="label block mb-1.5" htmlFor="preset">
-              {t.inputs.historicalSeries}
-            </label>
-            <select
-              id="preset"
-              value={dca.presetId}
-              onChange={(e) => setDCA({ presetId: e.target.value })}
-              className="input-number"
-            >
-              {Object.entries(seriesByGroup).map(([group, items]) => (
-                <optgroup key={group} label={group}>
-                  {items.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {t.historicalSeries[p.id]?.label ?? p.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-            <p className="mt-1.5 text-xs text-muted leading-snug">{presetDescription}</p>
+      <div className="grid gap-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 lg:grid-cols-[320px_1fr] lg:gap-8">
+        <div className="grid gap-3 self-start">
+          <div className="rounded-xl border border-emerald/15 bg-emerald/[0.04] p-4">
+            <div className="label text-emerald">DEPLOYMENT ASSUMPTIONS</div>
+            <p className="mt-1 text-sm text-muted">Choose how quickly the capital enters the market.</p>
           </div>
-        </InputPanel>
+
+          <InputPanel>
+            <NumberInput
+              label={t.inputs.totalCapital}
+              value={dca.totalCapital}
+              onChange={(v) => setDCA({ totalCapital: v })}
+              prefix="$"
+              min={0}
+              step={1000}
+              hint={t.hints.totalCapital}
+            />
+            <InputSlider
+              label={t.inputs.deploymentWindow}
+              value={dca.deploymentMonths}
+              onChange={(v) => setDCA({ deploymentMonths: v })}
+              min={1}
+              max={Math.min(60, preset.monthlyReturns.length)}
+              step={1}
+              suffix={t.inputs.months}
+              hint={t.hints.deploymentWindow}
+            />
+
+            <div className="space-y-3">
+              <div>
+                <div className="label mb-2">MARKET REGION</div>
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Market region">
+                  {seriesGroups.map((group) => {
+                    const active = group.label === activeGroup.label;
+                    return (
+                      <button
+                        key={group.label}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setDCA({ presetId: group.items[0].id })}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          active
+                            ? 'border-emerald bg-emerald/15 text-emerald'
+                            : 'border-border bg-surface-2 text-muted hover:border-emerald/60 hover:text-ink'
+                        }`}
+                      >
+                        {group.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="label mb-2">MARKET WINDOW</div>
+                <div className="flex flex-wrap gap-2" role="group" aria-label={t.inputs.historicalSeries}>
+                  {activeGroup.items.map((p) => {
+                    const active = p.id === dca.presetId;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setDCA({ presetId: p.id })}
+                        className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold leading-snug transition-colors ${
+                          active
+                            ? 'border-emerald bg-emerald/10 text-ink'
+                            : 'border-border bg-surface-2/70 text-ink-dim hover:border-emerald/60 hover:text-ink'
+                        }`}
+                      >
+                        {t.historicalSeries[p.id]?.label ?? p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-muted leading-snug">{presetDescription}</p>
+              </div>
+            </div>
+          </InputPanel>
+        </div>
 
         <div>
           <div className="card">
+            <div className="mb-4 border-b border-white/10 pb-4">
+              <div className="label text-emerald">PATH AS PROOF</div>
+              <p className="mt-1 text-sm text-muted">The lines show how timing changes the ending.</p>
+            </div>
             <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
             <Callout>{t.dca.callout}</Callout>
           </div>
