@@ -45,6 +45,8 @@ export default function DCA() {
   const diff = finalLump - finalDCA;
   const lumpWins = diff >= 0;
   const winnerLabel = lumpWins ? t.dca.winnerLump : t.dca.winnerDCA;
+  const diffAbs = Math.abs(diff);
+  const isCloseResult = diffAbs <= Math.max(finalLump, finalDCA, 1) * 0.005;
 
   const xLabels = result.lumpSum.map((_, i) => (i % 12 === 0 ? String(i / 12) : ''));
 
@@ -85,6 +87,54 @@ export default function DCA() {
         title={t.presets.dca.title}
         activeLabel={presetChips.find((p) => p.values.presetId === dca.presetId)?.label}
       />
+
+      <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+        <div className="label mb-4 text-emerald">TIMING RESULT</div>
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.75fr)] lg:items-start">
+          <div className="grid gap-4">
+            <section className={`card ${isCloseResult ? 'border-white/10 bg-white/[0.02]' : 'border-emerald/30 bg-emerald/5'}`}>
+              <div className={`label ${isCloseResult ? 'text-muted' : 'text-emerald'}`}>
+                {t.dca.heroWinsBy(winnerLabel)}
+              </div>
+              <div
+                className={`mono mt-2 break-words text-4xl font-semibold tracking-tight sm:text-5xl ${
+                  isCloseResult ? 'text-ink' : 'text-emerald'
+                }`}
+              >
+                {formatCurrency(diffAbs)}
+              </div>
+              <div className="mt-2 text-sm text-muted">{lumpWins ? t.dca.heroSubLump : t.dca.heroSubDCA}</div>
+            </section>
+
+            <PlainEnglish>
+              {t.dca.plainEnglish({
+                capital: formatCurrency(debounced.totalCapital),
+                presetLabel,
+                finalLump: formatCurrency(finalLump),
+                finalDCA: formatCurrency(finalDCA),
+                deployMonths: debounced.deploymentMonths,
+                winnerLabel,
+                diff: formatCurrency(diffAbs),
+                lumpWins,
+              })}
+            </PlainEnglish>
+          </div>
+
+          <div className="grid gap-4">
+            <HeroNumber
+              label={t.dca.heroLump}
+              value={formatCurrency(finalLump)}
+              tone={lumpWins && !isCloseResult ? 'positive' : 'default'}
+            />
+            <HeroNumber
+              label={t.dca.heroDCA}
+              value={formatCurrency(finalDCA)}
+              tone={!lumpWins && !isCloseResult ? 'positive' : 'default'}
+            />
+          </div>
+        </div>
+      </section>
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-8">
         <InputPanel>
@@ -133,30 +183,6 @@ export default function DCA() {
         </InputPanel>
 
         <div>
-          <div className="grid sm:grid-cols-3 gap-4 mb-6">
-            <HeroNumber label={t.dca.heroLump} value={formatCurrency(finalLump)} tone={lumpWins ? 'positive' : 'default'} />
-            <HeroNumber label={t.dca.heroDCA} value={formatCurrency(finalDCA)} tone={!lumpWins ? 'positive' : 'default'} />
-            <HeroNumber
-              label={t.dca.heroWinsBy(winnerLabel)}
-              value={formatCurrency(Math.abs(diff))}
-              tone={lumpWins ? 'positive' : 'negative'}
-              sublabel={lumpWins ? t.dca.heroSubLump : t.dca.heroSubDCA}
-            />
-          </div>
-
-          <PlainEnglish>
-            {t.dca.plainEnglish({
-              capital: formatCurrency(debounced.totalCapital),
-              presetLabel,
-              finalLump: formatCurrency(finalLump),
-              finalDCA: formatCurrency(finalDCA),
-              deployMonths: debounced.deploymentMonths,
-              winnerLabel,
-              diff: formatCurrency(Math.abs(diff)),
-              lumpWins,
-            })}
-          </PlainEnglish>
-
           <div className="card">
             <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
             <Callout>{t.dca.callout}</Callout>
