@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { GrowthChart, type Series } from '@/components/GrowthChart';
 import { InputSlider, NumberInput } from '@/components/InputSlider';
 import { InputPanel } from '@/components/InputPanel';
@@ -17,6 +17,37 @@ import { applyInflation, compound, formatCurrency, formatPercent } from '@/engin
 import { useDebouncedValue } from '@/components/useDebouncedValue';
 // @ts-ignore Vite resolves CSS modules; this project does not declare module CSS types.
 import styles from './Inflation.module.css';
+
+type RecalcPulseTone = 'emerald' | 'red' | 'muted';
+
+function RecalcPulse({
+  valueKey,
+  tone = 'muted',
+  className = '',
+  children,
+}: {
+  valueKey: string | number;
+  tone?: RecalcPulseTone;
+  className?: string;
+  children: ReactNode;
+}) {
+  const toneClass =
+    tone === 'emerald' ? styles.recalcPulseEmerald : tone === 'red' ? styles.recalcPulseRed : styles.recalcPulseMuted;
+
+  return (
+    <span key={valueKey} className={`${styles.recalcPulse} ${toneClass} ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+function recalcTextValue<T extends string | number>(valueKey: string | number, tone: RecalcPulseTone, children: ReactNode) {
+  return (
+    <RecalcPulse valueKey={valueKey} tone={tone}>
+      {children}
+    </RecalcPulse>
+  ) as unknown as T;
+}
 
 export default function Inflation() {
   const t = useT();
@@ -96,19 +127,25 @@ export default function Inflation() {
             <section className="card border-emerald/30 bg-emerald/5">
               <div className="label text-emerald">{t.inflation.heroReal}</div>
               <div className="mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl">
-                {formatCurrency(finalReal)}
+                <RecalcPulse valueKey={finalReal} tone="emerald">
+                  {formatCurrency(finalReal)}
+                </RecalcPulse>
               </div>
               <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
             </section>
 
             <PlainEnglish>
               {t.inflation.plainEnglish({
-                years: debounced.years,
-                nominal: formatCurrency(finalNominal),
-                real: formatCurrency(finalReal),
-                gap: formatCurrency(gap),
-                realReturn: formatPercent(realReturn),
-                annualReturn: formatPercent(debounced.annualReturn),
+                years: recalcTextValue<number>(debounced.years, 'muted', debounced.years),
+                nominal: recalcTextValue<string>(finalNominal, 'muted', formatCurrency(finalNominal)),
+                real: recalcTextValue<string>(finalReal, 'emerald', formatCurrency(finalReal)),
+                gap: recalcTextValue<string>(gap, 'red', formatCurrency(gap)),
+                realReturn: recalcTextValue<string>(realReturn, 'muted', formatPercent(realReturn)),
+                annualReturn: recalcTextValue<string>(
+                  debounced.annualReturn,
+                  'muted',
+                  formatPercent(debounced.annualReturn)
+                ),
               })}
             </PlainEnglish>
           </div>
@@ -116,13 +153,21 @@ export default function Inflation() {
           <div className="grid gap-4">
             <HeroNumber
               label={t.inflation.heroNominal}
-              value={formatCurrency(finalNominal)}
+              value={
+                <RecalcPulse valueKey={finalNominal} tone="muted">
+                  {formatCurrency(finalNominal)}
+                </RecalcPulse>
+              }
               tone="default"
               sublabel={t.inflation.heroNominalSub}
             />
             <HeroNumber
               label={t.inflation.heroDrag}
-              value={`−${formatCurrency(gap)}`}
+              value={
+                <RecalcPulse valueKey={gap} tone="red">
+                  {`−${formatCurrency(gap)}`}
+                </RecalcPulse>
+              }
               tone="negative"
               sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
             />
@@ -199,14 +244,18 @@ export default function Inflation() {
 
             <div className={styles.proofStat}>
               <div className="label text-muted">{t.inflation.heroDrag}</div>
-              <div className="mono mt-1 text-sm font-semibold text-red-300">-{formatCurrency(gap)}</div>
+              <div className="mono mt-1 text-sm font-semibold text-red-300">
+                <RecalcPulse valueKey={gap} tone="red">
+                  -{formatCurrency(gap)}
+                </RecalcPulse>
+              </div>
             </div>
           </div>
 
           <div className={styles.proofChartFrame}>
             <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" motion="proof" respectReducedMotion />
           </div>
-          <Callout>{t.inflation.callout(formatCurrency(finalReal))}</Callout>
+          <Callout>{t.inflation.callout(recalcTextValue<string>(finalReal, 'emerald', formatCurrency(finalReal)))}</Callout>
         </div>
       </div>
     </div>
