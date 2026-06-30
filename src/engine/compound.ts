@@ -1,4 +1,5 @@
 export type Frequency = 'monthly' | 'annually';
+export type RateConvention = 'nominal' | 'effectiveAnnual';
 
 export interface CompoundResult {
   yearlyBalances: number[];
@@ -17,9 +18,13 @@ export function compound(
   rate: number,
   years: number,
   frequency: Frequency = 'monthly',
+  rateConvention: RateConvention = 'nominal',
 ): CompoundResult {
   const periodsPerYear = frequency === 'monthly' ? 12 : 1;
-  const periodicRate = rate / periodsPerYear;
+  const periodicRate =
+    frequency === 'monthly' && rateConvention === 'effectiveAnnual'
+      ? Math.pow(1 + rate, 1 / periodsPerYear) - 1
+      : rate / periodsPerYear;
   const totalPeriods = Math.round(years * periodsPerYear);
 
   const yearlyBalances: number[] = [principal];

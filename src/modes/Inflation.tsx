@@ -72,7 +72,14 @@ export default function Inflation() {
   const debounced = useDebouncedValue(inflation, 200);
 
   const result = useMemo(() => {
-    const c = compound(debounced.principal, debounced.monthlyContribution, debounced.annualReturn, debounced.years);
+    const c = compound(
+      debounced.principal,
+      debounced.monthlyContribution,
+      debounced.annualReturn,
+      debounced.years,
+      'monthly',
+      'effectiveAnnual',
+    );
     const real = applyInflation(c.yearlyBalances, debounced.inflationRate);
     return { nominal: c.yearlyBalances, real };
   }, [debounced]);

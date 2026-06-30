@@ -17,6 +17,11 @@ describe('compound', () => {
     expect(r.finalBalance).toBeCloseTo(10000 * Math.pow(1.07, 10), 0);
   });
 
+  it('can treat monthly compounding input as an effective annual return', () => {
+    const r = compound(1000, 0, 0.075, 1, 'monthly', 'effectiveAnnual');
+    expect(r.finalBalance).toBeCloseTo(1075, 6);
+  });
+
   it('contributions add up correctly', () => {
     const r = compound(0, 100, 0, 1, 'monthly');
     expect(r.totalContributed).toBe(1200);
@@ -35,6 +40,17 @@ describe('applyInflation', () => {
     expect(real[0]).toBeCloseTo(100, 4);
     expect(real[1]).toBeCloseTo(100, 4);
     expect(real[2]).toBeCloseTo(100, 4);
+  });
+
+  it('keeps effective annual nominal growth consistent with real return math', () => {
+    const annualReturn = 0.075;
+    const inflationRate = 0.03;
+    const nominal = compound(1000, 0, annualReturn, 1, 'monthly', 'effectiveAnnual').yearlyBalances;
+    const real = applyInflation(nominal, inflationRate);
+    const realReturn = (1 + annualReturn) / (1 + inflationRate) - 1;
+
+    expect(nominal[1]).toBeCloseTo(1075, 6);
+    expect(real[1]).toBeCloseTo(1000 * (1 + realReturn), 6);
   });
 });
 
