@@ -62,7 +62,12 @@ export function Layout() {
       <ScrollToTop />
       <header className="border-b border-border bg-canvas/85 backdrop-blur sticky top-0 z-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-3">
-          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 group shrink-0">
+          <Link
+            to="/"
+            onClick={handleLogoClick}
+            aria-label={t.common.homeLink}
+            className="flex items-center gap-2 group shrink-0"
+          >
             <Logo />
             <span className="display text-lg text-ink hidden sm:inline">{t.common.appName}</span>
           </Link>
@@ -122,7 +127,7 @@ export function Layout() {
                 href={GITHUB}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-ink hover:text-emerald"
+                className="text-ink underline underline-offset-2 decoration-white/30 hover:text-emerald hover:decoration-emerald"
               >
                 {OWNER}
               </a>

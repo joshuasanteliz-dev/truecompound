@@ -21,6 +21,7 @@ interface PresetSet<K extends string> {
 export interface Dictionary {
   common: {
     appName: string;
+    homeLink: string;
     notFinancialAdvice: string;
     builtBy: string;
     backHome: string;
@@ -306,6 +307,7 @@ const LAST_UPDATED = '2026-05-20';
 const en: Dictionary = {
   common: {
     appName: 'TrueCompound',
+    homeLink: 'Go to TrueCompound home',
     notFinancialAdvice: 'Not financial advice.',
     builtBy: 'Built by',
     backHome: 'Back home',
@@ -1132,6 +1134,7 @@ const en: Dictionary = {
 const es: Dictionary = {
   common: {
     appName: 'TrueCompound',
+    homeLink: 'Ir al inicio de TrueCompound',
     notFinancialAdvice: 'No es asesoría financiera.',
     builtBy: 'Hecho por',
     backHome: 'Volver al inicio',
