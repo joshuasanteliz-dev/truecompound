@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useT } from '@/i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -7,8 +7,46 @@ import { CookieNotice } from '@/components/CookieNotice';
 const OWNER = 'Joshua Santeliz';
 const GITHUB = 'https://github.com/joshuasanteliz-dev';
 
+// Subtle context-change cue on route change: the routed page fades in while
+// settling up a few pixels. Keyed by pathname so it replays per navigation,
+// not on unrelated re-renders. Easing matches the recalculation feedback.
+const pageTransitionStyles = `
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: pageEnter 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none;
+  }
+}
+`;
+
 export function Layout() {
   const t = useT();
+  const { pathname } = useLocation();
+
+  // On the landing page the logo links to the route we are already on, so React
+  // Router does nothing. Intercept that case and smoothly return to the top instead.
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (pathname !== '/') return;
+    e.preventDefault();
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, left: 0, behavior: prefersReducedMotion ? ('instant' as ScrollBehavior) : 'smooth' });
+  };
 
   const navItems = [
     { to: '/inflation', label: t.nav.inflation },
@@ -20,10 +58,11 @@ export function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-canvas text-ink">
+      <style>{pageTransitionStyles}</style>
       <ScrollToTop />
       <header className="border-b border-border bg-canvas/85 backdrop-blur sticky top-0 z-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-3">
-          <Link to="/" className="flex items-center gap-2 group shrink-0">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2 group shrink-0">
             <Logo />
             <span className="display text-lg text-ink hidden sm:inline">{t.common.appName}</span>
           </Link>
@@ -56,7 +95,7 @@ export function Layout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-3 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap ${
+                  `px-3 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${
                     isActive ? 'text-emerald bg-emerald/10' : 'text-muted'
                   }`
                 }
@@ -69,7 +108,9 @@ export function Layout() {
       </header>
 
       <main className="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <Outlet />
+        <div key={pathname} className="page-transition">
+          <Outlet />
+        </div>
       </main>
 
       <footer className="border-t border-border bg-surface">

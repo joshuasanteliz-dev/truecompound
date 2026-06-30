@@ -317,10 +317,10 @@ const en: Dictionary = {
   },
   nav: {
     inflation: 'Inflation',
-    dca: 'DCA',
+    dca: 'Timing',
     debt: 'Debt',
     tax: 'Tax',
-    monteCarlo: 'Monte Carlo',
+    monteCarlo: 'Uncertainty',
     about: 'About',
     privacy: 'Privacy',
     terms: 'Terms',
@@ -650,7 +650,7 @@ const en: Dictionary = {
   },
   montecarlo: {
     eyebrow: 'Mode 05 · Monte Carlo',
-    titleAccum: 'A fan of futures, not a forecast.',
+    titleAccum: 'A range of futures, not a forecast.',
     titleWithdraw: 'Will the money last?',
     subtitleAccum: <>A single "average return" projection is a lie. The honest answer is a probability distribution.</>,
     subtitleWithdraw: <>Run thousands of randomized return paths. Survival rate is the fraction of those paths where the portfolio reaches the finish line above zero.</>,
@@ -658,9 +658,9 @@ const en: Dictionary = {
     explainer: (
       <>
         <p>A single "average return" calculator says: "you'll have $1.2M at retirement." Reassuring — and a lie. Markets don't deliver the average every year; they deliver +24%, -18%, +9%, +1%, and so on. The order of those years matters.</p>
-        <p><strong className="text-ink">Monte Carlo</strong> replaces the lie with thousands of randomly-rolled return sequences. Each sequence is a possible future. We sort the ending balances and ask: what does the <em>middle</em> path look like? The lucky 10%? The unlucky 10%?</p>
-        <p>The shaded band on the chart is the middle 80% of outcomes. The dashed line is the bad-luck case. If that line dips toward zero in withdrawal mode, you're staring at a real <strong>sequence-of-returns risk</strong> — early losses combined with withdrawals can blow up a portfolio even when the long-term average is fine.</p>
-        <p>Two knobs to play with: <strong>expected return</strong> (where the average lives) and <strong>volatility</strong> (how wide the fan opens). Crank either up and watch how much the 10th percentile suffers compared to the median.</p>
+        <p><strong className="text-ink">Monte Carlo</strong> replaces the lie with thousands of simulated return sequences. Each sequence is a possible future. We sort the ending balances and ask: what does the <em>middle</em> path look like? The favorable 10%? The rougher 10%?</p>
+        <p>The shaded band on the chart is the middle 80% of outcomes. The dashed line is the rougher, low-percentile path. If that line dips toward zero in withdrawal mode, you're staring at a real <strong>sequence-of-returns risk</strong> — early losses combined with withdrawals can blow up a portfolio even when the long-term average is fine.</p>
+        <p>Two knobs to play with: <strong>expected return</strong> (where the average lives) and <strong>volatility</strong> (how wide the range opens). Turn either up and watch how much the 10th percentile suffers compared to the median.</p>
       </>
     ),
     presetsTitle: 'Try a life scenario',
@@ -684,12 +684,12 @@ const en: Dictionary = {
     warningAggressiveTitle: (r) => `Your withdrawal rate is ${r}/yr — aggressive.`,
     warningAggressiveBody: (
       <>
-        Pulling more than 5%/yr historically ran out in bad sequences. The classic "4% rule" exists because higher rates fail in real-world sequences (oil-shock decade, lost decade, etc.). Watch the 10th-percentile line below — that's the bad-luck case you'd need to survive.
+        Pulling more than 5%/yr historically ran out in poor sequences. The classic "4% rule" exists because higher rates fail in real-world sequences (oil-shock decade, lost decade, etc.). Watch the 10th-percentile line below — that's the rougher path you'd need to survive.
       </>
     ),
     plainEnglishWithdraw: ({ iterations, balance, withdrawal, survivalPct, years, tone }) => (
       <>
-        Out of <strong>{iterations}</strong> randomly-rolled futures starting with <strong className="text-ink">{balance}</strong> and pulling <strong className="text-ink">{withdrawal}/mo</strong>,{' '}
+        Out of <strong>{iterations}</strong> simulated futures starting with <strong className="text-ink">{balance}</strong> and pulling <strong className="text-ink">{withdrawal}/mo</strong>,{' '}
         <strong className={tone === 'strong' ? 'text-gain' : tone === 'failing' ? 'text-loss' : 'text-ink'}>{survivalPct}%</strong> made it to year {years} with money left.{' '}
         {tone === 'strong'
           ? "That's a strong cushion — the math works in most sequences of returns."
@@ -702,7 +702,7 @@ const en: Dictionary = {
     ),
     plainEnglishAccum: ({ iterations, balance, contribution, years, median, p10, p90 }) => (
       <>
-        Across <strong>{iterations}</strong> randomly-rolled futures (starting <strong className="text-ink">{balance}</strong>, adding <strong className="text-ink">{contribution}/mo</strong> for {years} years), the middle path lands at <strong className="text-gain">{median}</strong>. Unlucky paths end near <strong className="text-loss">{p10}</strong>; lucky ones near <strong>{p90}</strong>. The wide gap is volatility doing its work — same average return, very different lives.
+        Across <strong>{iterations}</strong> simulated futures (starting <strong className="text-ink">{balance}</strong>, adding <strong className="text-ink">{contribution}/mo</strong> for {years} years), the middle path lands at <strong className="text-gain">{median}</strong>. Rougher paths end near <strong className="text-loss">{p10}</strong>; favorable ones near <strong>{p90}</strong>. The wide gap is volatility doing its work — same average return, very different lives.
       </>
     ),
     callout: (
@@ -1143,10 +1143,10 @@ const es: Dictionary = {
   },
   nav: {
     inflation: 'Inflación',
-    dca: 'DCA',
+    dca: 'Timing',
     debt: 'Deuda',
     tax: 'Impuestos',
-    monteCarlo: 'Monte Carlo',
+    monteCarlo: 'Incertidumbre',
     about: 'Acerca de',
     privacy: 'Privacidad',
     terms: 'Términos',
@@ -1476,7 +1476,7 @@ const es: Dictionary = {
   },
   montecarlo: {
     eyebrow: 'Modo 05 · Monte Carlo',
-    titleAccum: 'Un abanico de futuros, no un pronóstico.',
+    titleAccum: 'Un rango de futuros, no un pronóstico.',
     titleWithdraw: '¿Durará el dinero?',
     subtitleAccum: <>Una proyección de un único "retorno promedio" es una mentira. La respuesta honesta es una distribución de probabilidad.</>,
     subtitleWithdraw: <>Corre miles de caminos de retorno aleatorios. La tasa de supervivencia es la fracción de esos caminos donde el portafolio llega a la meta por encima de cero.</>,
@@ -1484,9 +1484,9 @@ const es: Dictionary = {
     explainer: (
       <>
         <p>Una calculadora de "retorno promedio" único dice: "tendrás $1.2M en la jubilación". Tranquilizador — y mentira. Los mercados no entregan el promedio cada año; entregan +24%, -18%, +9%, +1%, etcétera. El orden de esos años importa.</p>
-        <p><strong className="text-ink">Monte Carlo</strong> sustituye la mentira con miles de secuencias de retornos lanzadas al azar. Cada secuencia es un futuro posible. Ordenamos los saldos finales y preguntamos: ¿cómo se ve el camino del <em>medio</em>? ¿El 10% afortunado? ¿El 10% desafortunado?</p>
-        <p>La banda sombreada en el gráfico es el 80% central de resultados. La línea discontinua es el caso de mala suerte. Si esa línea baja hacia cero en modo retiro, estás mirando un verdadero <strong>riesgo de secuencia de retornos</strong> — pérdidas tempranas combinadas con retiros pueden volar un portafolio incluso cuando el promedio a largo plazo está bien.</p>
-        <p>Dos perillas para jugar: <strong>retorno esperado</strong> (dónde vive el promedio) y <strong>volatilidad</strong> (cómo de ancho se abre el abanico). Sube cualquiera y mira cuánto sufre el percentil 10 frente a la mediana.</p>
+        <p><strong className="text-ink">Monte Carlo</strong> sustituye la mentira con miles de secuencias de retornos simuladas. Cada secuencia es un futuro posible. Ordenamos los saldos finales y preguntamos: ¿cómo se ve el camino del <em>medio</em>? ¿El 10% favorable? ¿El 10% adverso?</p>
+        <p>La banda sombreada en el gráfico es el 80% central de resultados. La línea discontinua es el camino adverso, de bajo percentil. Si esa línea baja hacia cero en modo retiro, estás mirando un verdadero <strong>riesgo de secuencia de retornos</strong> — pérdidas tempranas combinadas con retiros pueden volar un portafolio incluso cuando el promedio a largo plazo está bien.</p>
+        <p>Dos perillas para ajustar: <strong>retorno esperado</strong> (dónde vive el promedio) y <strong>volatilidad</strong> (cómo de ancho se abre el rango). Sube cualquiera y mira cuánto sufre el percentil 10 frente a la mediana.</p>
       </>
     ),
     presetsTitle: 'Prueba un escenario de vida',
@@ -1510,12 +1510,12 @@ const es: Dictionary = {
     warningAggressiveTitle: (r) => `Tu tasa de retiro es ${r}/año — agresiva.`,
     warningAggressiveBody: (
       <>
-        Sacar más del 5%/año históricamente se quedaba sin fondos en malas secuencias. La clásica "regla del 4%" existe porque tasas más altas fallan en secuencias del mundo real (década del shock del petróleo, década perdida, etc.). Mira la línea del percentil 10 abajo — ese es el caso de mala suerte que tendrías que sobrevivir.
+        Sacar más del 5%/año históricamente se quedaba sin fondos en secuencias adversas. La clásica "regla del 4%" existe porque tasas más altas fallan en secuencias del mundo real (década del shock del petróleo, década perdida, etc.). Mira la línea del percentil 10 abajo — ese es el camino adverso que tendrías que sobrevivir.
       </>
     ),
     plainEnglishWithdraw: ({ iterations, balance, withdrawal, survivalPct, years, tone }) => (
       <>
-        De <strong>{iterations}</strong> futuros aleatorios empezando con <strong className="text-ink">{balance}</strong> y sacando <strong className="text-ink">{withdrawal}/mes</strong>,{' '}
+        De <strong>{iterations}</strong> futuros simulados empezando con <strong className="text-ink">{balance}</strong> y sacando <strong className="text-ink">{withdrawal}/mes</strong>,{' '}
         <strong className={tone === 'strong' ? 'text-gain' : tone === 'failing' ? 'text-loss' : 'text-ink'}>{survivalPct}%</strong> llegaron al año {years} con dinero todavía.{' '}
         {tone === 'strong'
           ? 'Es un colchón fuerte — la matemática funciona en la mayoría de secuencias de retornos.'
@@ -1528,7 +1528,7 @@ const es: Dictionary = {
     ),
     plainEnglishAccum: ({ iterations, balance, contribution, years, median, p10, p90 }) => (
       <>
-        Entre <strong>{iterations}</strong> futuros aleatorios (empezando <strong className="text-ink">{balance}</strong>, añadiendo <strong className="text-ink">{contribution}/mes</strong> durante {years} años), el camino del medio aterriza en <strong className="text-gain">{median}</strong>. Los caminos desafortunados terminan cerca de <strong className="text-loss">{p10}</strong>; los afortunados cerca de <strong>{p90}</strong>. La brecha ancha es la volatilidad haciendo su trabajo — mismo retorno promedio, vidas muy diferentes.
+        Entre <strong>{iterations}</strong> futuros simulados (empezando <strong className="text-ink">{balance}</strong>, añadiendo <strong className="text-ink">{contribution}/mes</strong> durante {years} años), el camino del medio aterriza en <strong className="text-gain">{median}</strong>. Los caminos adversos terminan cerca de <strong className="text-loss">{p10}</strong>; los favorables cerca de <strong>{p90}</strong>. La brecha ancha es la volatilidad haciendo su trabajo — mismo retorno promedio, vidas muy diferentes.
       </>
     ),
     callout: (
