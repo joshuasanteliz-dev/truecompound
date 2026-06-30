@@ -4,6 +4,7 @@ import { calculateLumpSum, calculateDCA, flatMonthlyReturns } from '../dca';
 import { amortizeDebt } from '../debt';
 import { compareTaxAccounts } from '../tax';
 import { runMonteCarlo } from '../montecarlo';
+import { RETURN_PRESETS, SP500_1990_2020 } from '../../data/sp500';
 
 describe('compound', () => {
   it('grows $0 + $0 to $0', () => {
@@ -50,6 +51,23 @@ describe('DCA vs lump sum', () => {
     const ls = calculateLumpSum(12000, returns);
     const dca = calculateDCA(12000, returns, 12);
     expect(ls[ls.length - 1]).toBeGreaterThan(dca[dca.length - 1]);
+  });
+
+  it('generated return presets realize their declared annualized returns', () => {
+    for (const preset of RETURN_PRESETS) {
+      const product = preset.monthlyReturns.reduce((acc, r) => acc * (1 + r), 1);
+      const realizedCAGR = Math.pow(product, 12 / preset.monthlyReturns.length) - 1;
+
+      expect(realizedCAGR).toBeCloseTo(preset.annualizedReturn, 10);
+    }
+  });
+
+  it('keeps the S&P 500 1990-2020 lump sum result near the intended CAGR result', () => {
+    const balances = calculateLumpSum(1000, SP500_1990_2020.monthlyReturns);
+    const endingBalance = balances[balances.length - 1];
+
+    expect(endingBalance).toBeCloseTo(18426.71, 2);
+    expect(endingBalance).toBeLessThan(20000);
   });
 });
 

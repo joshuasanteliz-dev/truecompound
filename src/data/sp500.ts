@@ -55,8 +55,8 @@ function generateSeries(months: number, targetCAGR: number, annualVol: number, s
   }
   let product = 1;
   for (const r of raw) product *= 1 + r;
-  const realizedCAGR = Math.pow(product, 12 / months) - 1;
-  const adjust = (1 + targetCAGR) / (1 + realizedCAGR);
+  const targetProduct = Math.pow(1 + targetCAGR, months / 12);
+  const adjust = Math.pow(targetProduct / product, 1 / months);
   return raw.map((r) => (1 + r) * adjust - 1);
 }
 
