@@ -28,6 +28,7 @@ export interface TaxInputs {
   annualReturn: number;
   years: number;
   marginalTaxRate: number;
+  futureWithdrawalTaxRate?: number;
   capitalGainsRate: number;
 }
 
@@ -66,6 +67,7 @@ const defaults = {
     annualReturn: 0.08,
     years: 30,
     marginalTaxRate: 0.32,
+    futureWithdrawalTaxRate: 0.24,
     capitalGainsRate: 0.15,
   },
   monteCarlo: {

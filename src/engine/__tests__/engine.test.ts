@@ -113,6 +113,48 @@ describe('compareTaxAccounts', () => {
     });
     expect(r.rothTfsa.afterTax).toBeGreaterThan(r.taxable.afterTax);
   });
+
+  it('ties Roth/TFSA and Traditional/RRSP after rounding when current and future tax rates match', () => {
+    const r = compareTaxAccounts({
+      principal: 10000,
+      monthlyContribution: 500,
+      annualReturn: 0.08,
+      years: 30,
+      marginalTaxRate: 0.3,
+      futureWithdrawalTaxRate: 0.3,
+      capitalGainsRate: 0.15,
+    });
+
+    expect(Math.round(r.rothTfsa.afterTax)).toBe(Math.round(r.traditionalRrsp.afterTax));
+  });
+
+  it('favors Traditional/RRSP when future withdrawal tax is lower than current tax', () => {
+    const r = compareTaxAccounts({
+      principal: 10000,
+      monthlyContribution: 500,
+      annualReturn: 0.08,
+      years: 30,
+      marginalTaxRate: 0.35,
+      futureWithdrawalTaxRate: 0.2,
+      capitalGainsRate: 0.15,
+    });
+
+    expect(r.traditionalRrsp.afterTax).toBeGreaterThan(r.rothTfsa.afterTax);
+  });
+
+  it('favors Roth/TFSA when future withdrawal tax is higher than current tax', () => {
+    const r = compareTaxAccounts({
+      principal: 10000,
+      monthlyContribution: 500,
+      annualReturn: 0.08,
+      years: 30,
+      marginalTaxRate: 0.2,
+      futureWithdrawalTaxRate: 0.35,
+      capitalGainsRate: 0.15,
+    });
+
+    expect(r.rothTfsa.afterTax).toBeGreaterThan(r.traditionalRrsp.afterTax);
+  });
 });
 
 describe('runMonteCarlo', () => {

@@ -6,6 +6,7 @@ export interface TaxComparisonInputs {
   annualReturn: number;
   years: number;
   marginalTaxRate: number;
+  futureWithdrawalTaxRate?: number;
   capitalGainsRate: number;
 }
 
@@ -34,23 +35,33 @@ export function applyTaxDrag(
  * Side-by-side comparison of three account types.
  * - Taxable: capital-gains drag applied annually
  * - Roth/TFSA: contributions post-tax (assumed), no drag, no withdrawal tax
- * - Traditional/RRSP: contributions pre-tax (modeled as scaled-up by 1/(1-mtr)), no drag, but full balance taxed at withdrawal
+ * - Traditional/RRSP: same saving power grossed up by the current tax rate, no drag,
+ *   then full balance taxed at the future withdrawal tax rate
  */
 export function compareTaxAccounts(inputs: TaxComparisonInputs): TaxComparisonResult {
-  const { principal, monthlyContribution, annualReturn, years, marginalTaxRate, capitalGainsRate } = inputs;
+  const {
+    principal,
+    monthlyContribution,
+    annualReturn,
+    years,
+    marginalTaxRate,
+    futureWithdrawalTaxRate = marginalTaxRate,
+    capitalGainsRate,
+  } = inputs;
 
   const taxableBalances = applyTaxDrag(principal, monthlyContribution, annualReturn, years, capitalGainsRate);
 
   const rothBalances = compound(principal, monthlyContribution, annualReturn, years, 'monthly').yearlyBalances;
 
   const grossUpFactor = 1 / Math.max(1 - marginalTaxRate, 0.01);
-  const traditionalBalances = compound(
+  const traditionalPreTaxBalances = compound(
     principal * grossUpFactor,
     monthlyContribution * grossUpFactor,
     annualReturn,
     years,
     'monthly',
   ).yearlyBalances;
+  const traditionalBalances = traditionalPreTaxBalances.map((balance) => balance * (1 - futureWithdrawalTaxRate));
 
   return {
     taxable: {
@@ -63,7 +74,7 @@ export function compareTaxAccounts(inputs: TaxComparisonInputs): TaxComparisonRe
     },
     traditionalRrsp: {
       yearlyBalances: traditionalBalances,
-      afterTax: traditionalBalances[traditionalBalances.length - 1] * (1 - marginalTaxRate),
+      afterTax: traditionalBalances[traditionalBalances.length - 1],
     },
   };
 }

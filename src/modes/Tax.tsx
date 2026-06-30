@@ -95,11 +95,20 @@ export default function Tax() {
     annualReturn: 'number',
     years: 'int',
     marginalTaxRate: 'number',
+    futureWithdrawalTaxRate: 'number',
     capitalGainsRate: 'number',
   });
 
   const debounced = useDebouncedValue(tax, 200);
-  const result = useMemo(() => compareTaxAccounts(debounced), [debounced]);
+  const result = useMemo(
+    () =>
+      compareTaxAccounts({
+        ...debounced,
+        futureWithdrawalTaxRate: debounced.futureWithdrawalTaxRate ?? debounced.marginalTaxRate,
+      }),
+    [debounced],
+  );
+  const futureWithdrawalTaxRate = tax.futureWithdrawalTaxRate ?? tax.marginalTaxRate;
 
   const xLabels = result.taxable.yearlyBalances.map((_, i) => String(i));
 
@@ -129,7 +138,7 @@ export default function Tax() {
       heroLabel: t.tax.heroRoth,
       afterTax: result.rothTfsa.afterTax,
       roundedAfterTax: Math.round(result.rothTfsa.afterTax),
-      note: 'Tax-free growth and withdrawal value.',
+      note: 'After-tax saving power grows tax-free.',
     },
     {
       key: 'traditionalRrsp',
@@ -137,7 +146,7 @@ export default function Tax() {
       heroLabel: t.tax.heroTrad,
       afterTax: result.traditionalRrsp.afterTax,
       roundedAfterTax: Math.round(result.traditionalRrsp.afterTax),
-      note: 'Pre-tax balance, then taxed at withdrawal.',
+      note: 'Pre-tax equivalent, taxed at withdrawal.',
     },
     {
       key: 'taxable',
@@ -163,7 +172,7 @@ export default function Tax() {
   const resultKicker = hasRoundedTie ? 'No clear winner' : 'Best usable wrapper';
   const resultSummary = hasRoundedTie
     ? 'The top account structures land on the same after-tax dollar once rounded.'
-    : 'This structure leaves the highest after-tax balance in the current scenario.';
+    : 'This structure leaves the highest after-tax balance from the same saving power.';
   const resultDeltaLabel = hasRoundedTie ? 'Difference after rounding' : 'Ahead of next best';
   const resultDeltaValue = hasRoundedTie ? '$0 difference after rounding' : formatCurrency(leader.afterTax - nextBest.afterTax);
   const winnerName = hasRoundedTie ? 'No clear winner' : leader.label;
@@ -175,10 +184,10 @@ export default function Tax() {
 
   const presetItems = t.presets.tax.items;
   const presets: PresetChip<TaxInputs>[] = [
-    { label: presetItems.young.label, blurb: presetItems.young.blurb, values: { principal: 0, monthlyContribution: 500, annualReturn: 0.08, years: 30, marginalTaxRate: 0.22, capitalGainsRate: 0.15 } },
-    { label: presetItems.peak.label, blurb: presetItems.peak.blurb, values: { principal: 50000, monthlyContribution: 2000, annualReturn: 0.08, years: 25, marginalTaxRate: 0.37, capitalGainsRate: 0.20 } },
-    { label: presetItems.rothMax.label, blurb: presetItems.rothMax.blurb, values: { principal: 0, monthlyContribution: 583, annualReturn: 0.08, years: 35, marginalTaxRate: 0.24, capitalGainsRate: 0.15 } },
-    { label: presetItems.midCareer.label, blurb: presetItems.midCareer.blurb, values: { principal: 100000, monthlyContribution: 1500, annualReturn: 0.07, years: 20, marginalTaxRate: 0.28, capitalGainsRate: 0.15 } },
+    { label: presetItems.young.label, blurb: presetItems.young.blurb, values: { principal: 0, monthlyContribution: 500, annualReturn: 0.08, years: 30, marginalTaxRate: 0.22, futureWithdrawalTaxRate: 0.24, capitalGainsRate: 0.15 } },
+    { label: presetItems.peak.label, blurb: presetItems.peak.blurb, values: { principal: 50000, monthlyContribution: 2000, annualReturn: 0.08, years: 25, marginalTaxRate: 0.37, futureWithdrawalTaxRate: 0.24, capitalGainsRate: 0.20 } },
+    { label: presetItems.rothMax.label, blurb: presetItems.rothMax.blurb, values: { principal: 0, monthlyContribution: 583, annualReturn: 0.08, years: 35, marginalTaxRate: 0.24, futureWithdrawalTaxRate: 0.32, capitalGainsRate: 0.15 } },
+    { label: presetItems.midCareer.label, blurb: presetItems.midCareer.blurb, values: { principal: 100000, monthlyContribution: 1500, annualReturn: 0.07, years: 20, marginalTaxRate: 0.28, futureWithdrawalTaxRate: 0.22, capitalGainsRate: 0.15 } },
   ];
 
   return (
@@ -188,8 +197,8 @@ export default function Tax() {
       <ModeHeader
         eyebrow={t.tax.eyebrow}
         title="The wrapper changes the ending."
-        subtitle={t.tax.subtitle}
-        actions={<ShareButton params={tax as unknown as Record<string, number>} />}
+        subtitle={<>Same saving power, same return, different tax timing.</>}
+        actions={<ShareButton params={{ ...tax, futureWithdrawalTaxRate } as unknown as Record<string, number>} />}
       />
 
       <ModeExplainer summary={t.tax.explainerSummary}>{t.tax.explainer}</ModeExplainer>
@@ -257,8 +266,8 @@ export default function Tax() {
                       {leaderAfterTaxDisplay}
                     </RecalcPulse>
                   </strong>.
-                  There is no clear winner under these assumptions; the wrapper choice is effectively a tie in the displayed
-                  result.
+                  There is no clear winner under these assumptions; current and future tax rates make the wrapper choice
+                  effectively a tie in the displayed result.
                 </>
               ) : (
                 <>
@@ -281,7 +290,7 @@ export default function Tax() {
                     </RecalcPulse>
                   </strong>{' '}
                   more than <strong className="text-ink">{nextBest.label}</strong>. The difference comes from account
-                  structure and tax timing, not a different fund or return assumption.
+                  structure and tax timing, not a different fund, return assumption, or saving power.
                 </>
               )}
             </PlainEnglish>
@@ -336,7 +345,7 @@ export default function Tax() {
         <div className="grid gap-3 self-start [&_.card]:border-[rgba(148,163,184,0.16)] [&_.card]:bg-[rgba(11,14,20,0.78)] [&_.card]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] [&_.input-number]:border-[rgba(148,163,184,0.22)] [&_.input-number]:bg-[rgba(5,8,13,0.72)] [&_input[type=range]]:accent-emerald">
           <div className="rounded-[1.125rem] border border-[rgba(34,197,94,0.14)] bg-[rgba(34,197,94,0.045)] px-4 py-3.5">
             <div className="label text-emerald">ACCOUNT ASSUMPTIONS</div>
-            <p className="mt-1 text-sm text-muted">Adjust the contribution, tax rate, and time horizon behind the comparison.</p>
+            <p className="mt-1 text-sm text-muted">Adjust the saving power, current tax rate, and future withdrawal rate.</p>
           </div>
 
           <InputPanel>
@@ -377,7 +386,7 @@ export default function Tax() {
               suffix={t.inputs.yrsSuffix}
             />
             <InputSlider
-              label={t.inputs.marginalTaxRate}
+              label="Current marginal tax rate"
               value={tax.marginalTaxRate}
               onChange={(v) => setTax({ marginalTaxRate: v })}
               min={0}
@@ -386,7 +395,19 @@ export default function Tax() {
               displayMultiplier={100}
               displayDecimals={0}
               suffix="%"
-              hint={t.hints.marginalTaxBrackets}
+              hint="Used to gross up Traditional/RRSP contributions to the pre-tax equivalent."
+            />
+            <InputSlider
+              label="Future withdrawal tax rate"
+              value={futureWithdrawalTaxRate}
+              onChange={(v) => setTax({ futureWithdrawalTaxRate: v })}
+              min={0}
+              max={0.5}
+              step={0.01}
+              displayMultiplier={100}
+              displayDecimals={0}
+              suffix="%"
+              hint="Used when Traditional/RRSP money is withdrawn later."
             />
             <InputSlider
               label={t.inputs.capitalGainsRate}
@@ -398,7 +419,7 @@ export default function Tax() {
               displayMultiplier={100}
               displayDecimals={0}
               suffix="%"
-              hint={t.hints.capitalGainsBrackets}
+              hint="Simplified taxable-drag rate for brokerage gains."
             />
           </InputPanel>
         </div>
@@ -407,7 +428,7 @@ export default function Tax() {
           <div className="card relative grid min-w-0 gap-4 overflow-hidden border-[rgba(148,163,184,0.18)] bg-[rgba(8,12,18,0.84)] shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-gradient-to-b before:from-emerald/60 before:via-emerald/20 before:to-transparent">
             <div className="border-b border-white/10 pb-4">
               <div className="label text-emerald">STRUCTURE AS PROOF</div>
-              <p className="mt-1 text-sm text-muted">The chart keeps the same growth paths and shows how each wrapper changes usable ending value.</p>
+              <p className="mt-1 text-sm text-muted">The chart keeps the same saving power and return, then changes the tax timing.</p>
             </div>
             <div className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(148,163,184,0.12)] bg-[rgba(2,6,12,0.42)] px-3 pb-1 pt-3 md:px-4 md:pb-2 md:pt-4">
               <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
@@ -420,8 +441,8 @@ export default function Tax() {
                       No clear winner
                     </RecalcPulse>
                   </strong>{' '}
-                  appears in this scenario after rounding. The chart still shows how each legal wrapper changes the
-                  path; the visible ending result is{' '}
+                  appears in this scenario after rounding. The chart keeps the same saving power and return, then shows
+                  how current and future tax rates change the path; the visible ending result is{' '}
                   <strong className="text-ink">
                     <RecalcPulse valueKey={resultDeltaKey} tone="muted">
                       effectively tied
@@ -431,12 +452,13 @@ export default function Tax() {
               ) : (
                 <>
                   <strong className="text-ink">
-                    <RecalcPulse valueKey={resultHeadlineKey} tone="muted">
+                  <RecalcPulse valueKey={resultHeadlineKey} tone="muted">
                       {winnerName}
                     </RecalcPulse>
                   </strong>{' '}
-                  wins this scenario. The Traditional/RRSP line is highest pre-tax because the government temporarily
-                  owns some of it. Roth/TFSA usually wins when your future tax bracket is equal-or-higher than today's.
+                  wins this scenario. Traditional/RRSP benefits when the future withdrawal tax rate is lower than the
+                  current rate; Roth/TFSA benefits when the future rate is higher. Taxable brokerage keeps the simplified
+                  taxable-drag assumption.
                 </>
               )}
             </Callout>
