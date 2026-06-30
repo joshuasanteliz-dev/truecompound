@@ -192,21 +192,25 @@ export default function DCA() {
               <div className="mt-2 text-sm text-muted">{lumpWins ? t.dca.heroSubLump : t.dca.heroSubDCA}</div>
             </section>
 
-            <PlainEnglish>
-              {t.dca.plainEnglish({
-                capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
-                presetLabel,
-                finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
-                finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
-                deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
-                winnerLabel,
-                diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
-                lumpWins,
-              })}
-            </PlainEnglish>
+            {/* Desktop keeps Plain English beside the answer; on mobile it moves below the workbench. */}
+            <div className="hidden lg:block">
+              <PlainEnglish>
+                {t.dca.plainEnglish({
+                  capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+                  presetLabel,
+                  finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
+                  finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
+                  deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
+                  winnerLabel,
+                  diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
+                  lumpWins,
+                })}
+              </PlainEnglish>
+            </div>
           </div>
 
-          <div className="grid gap-4 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+          {/* Secondary cards: desktop column. On mobile these move below the workbench. */}
+          <div className="hidden gap-4 lg:grid [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
             <HeroNumber
               label={t.dca.heroLump}
               value={
@@ -321,6 +325,45 @@ export default function DCA() {
             </div>
             <Callout>{t.dca.callout}</Callout>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile-only: the same Plain English and secondary cards, placed after the
+          workbench so the dominant answer sits right above the inputs. Hidden on
+          desktop (display:none removes the duplicate from the a11y tree), where
+          these render inside the result section above. */}
+      <div className="mt-6 grid gap-4 lg:hidden">
+        <PlainEnglish>
+          {t.dca.plainEnglish({
+            capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+            presetLabel,
+            finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
+            finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
+            deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
+            winnerLabel,
+            diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
+            lumpWins,
+          })}
+        </PlainEnglish>
+        <div className="grid gap-4 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+          <HeroNumber
+            label={t.dca.heroLump}
+            value={
+              <RecalcPulse valueKey={finalLump} tone="muted">
+                {formatCurrency(finalLump)}
+              </RecalcPulse>
+            }
+            tone="default"
+          />
+          <HeroNumber
+            label={t.dca.heroDCA}
+            value={
+              <RecalcPulse valueKey={finalDCA} tone="muted">
+                {formatCurrency(finalDCA)}
+              </RecalcPulse>
+            }
+            tone="default"
+          />
         </div>
       </div>
     </div>
