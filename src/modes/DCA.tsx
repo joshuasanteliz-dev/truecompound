@@ -155,28 +155,51 @@ export default function DCA() {
     <div>
       <style>{recalcPulseStyles}</style>
 
-      <ModeHeader
-        eyebrow={t.dca.eyebrow}
-        title={t.dca.title}
-        subtitle={t.dca.subtitle}
-        actions={<ShareButton params={dca as unknown as Record<string, string | number>} />}
-      />
+      {/* Desktop intro — original ModeHeader (with Share) + full Explainer. Hidden on
+          mobile, which uses the compact intro below and moves Share/explainer lower. */}
+      <div className="hidden lg:block">
+        <ModeHeader
+          eyebrow={t.dca.eyebrow}
+          title={t.dca.title}
+          subtitle={t.dca.subtitle}
+          actions={<ShareButton params={dca as unknown as Record<string, string | number>} />}
+        />
 
-      <ModeExplainer summary={t.dca.explainerSummary}>{t.dca.explainer}</ModeExplainer>
+        <ModeExplainer summary={t.dca.explainerSummary}>{t.dca.explainer}</ModeExplainer>
+      </div>
 
-      <ScenarioPresets<DCAInputs>
-        presets={presetChips}
-        onApply={(v) => setDCA(v)}
-        title={t.presets.dca.title}
-        activeLabel={presetChips.find((p) => p.values.presetId === dca.presetId)?.label}
-      />
+      {/* Mobile intro — compact eyebrow/title/subtitle, no Share, tight spacing so the
+          calculator starts sooner. */}
+      <div className="mb-4 lg:hidden">
+        <div className="label mb-1 text-emerald">{t.dca.eyebrow}</div>
+        <h1 className="display-tight text-2xl leading-tight text-ink">{t.dca.title}</h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-snug text-muted">{t.dca.subtitle}</p>
+      </div>
+
+      {/* Mobile-only: full explanation accordion near the top, collapsed and compact,
+          so users can understand the mode before interacting. Desktop shows it up top
+          inside the ModeHeader block above (display:none here at lg — no duplicate). */}
+      <div className="mb-4 lg:hidden [&>.mode-explainer]:mb-0">
+        <ModeExplainer summary={t.dca.explainerSummary}>{t.dca.explainer}</ModeExplainer>
+      </div>
+
+      {/* Presets — single horizontal scroll row on mobile so the long labels do not
+          stack into tall ceremony; original wrapped row restored at lg. */}
+      <div className="[&_.flex-wrap]:flex-nowrap [&_.flex-wrap]:overflow-x-auto [&_.flex-wrap]:pb-1 [&_.flex-wrap>button]:shrink-0 [&>div]:mb-4 lg:[&_.flex-wrap]:flex-wrap lg:[&_.flex-wrap]:overflow-visible lg:[&_.flex-wrap]:pb-0 lg:[&>div]:mb-6">
+        <ScenarioPresets<DCAInputs>
+          presets={presetChips}
+          onApply={(v) => setDCA(v)}
+          title={t.presets.dca.title}
+          activeLabel={presetChips.find((p) => p.values.presetId === dca.presetId)?.label}
+        />
+      </div>
 
       <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
         <div className="label mb-4 text-emerald">TIMING RESULT</div>
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.75fr)] lg:items-start">
           <div className="grid gap-4">
-            <section className={`card ${isCloseResult ? 'border-white/10 bg-white/[0.02]' : 'border-emerald/30 bg-emerald/5'}`}>
+            <section className={`card p-5 lg:p-6 ${isCloseResult ? 'border-white/10 bg-white/[0.02]' : 'border-emerald/30 bg-emerald/5'}`}>
               <div className={`label ${isCloseResult ? 'text-muted' : 'text-emerald'}`}>
                 {t.dca.heroWinsBy(winnerLabel)}
               </div>
@@ -233,8 +256,8 @@ export default function DCA() {
         </div>
       </section>
 
-      <div className="relative isolate grid gap-4 overflow-hidden rounded-3xl border border-[rgba(148,163,184,0.16)] bg-[rgba(5,8,13,0.72)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-emerald/35 before:to-transparent lg:grid-cols-[320px_1fr] lg:gap-5 lg:p-5">
-        <div className="grid gap-3 self-start [&_.card]:border-[rgba(148,163,184,0.16)] [&_.card]:bg-[rgba(11,14,20,0.78)] [&_.card]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] [&_.input-number]:border-[rgba(148,163,184,0.22)] [&_.input-number]:bg-[rgba(5,8,13,0.72)] [&_input[type=range]]:accent-emerald">
+      <div className="relative isolate grid gap-4 overflow-hidden rounded-3xl border border-[rgba(148,163,184,0.16)] bg-[rgba(5,8,13,0.72)] p-3 shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-emerald/35 before:to-transparent sm:p-4 lg:grid-cols-[320px_1fr] lg:gap-5 lg:p-5">
+        <div className="grid gap-3 self-start [&_.card]:p-4 lg:[&_.card]:p-6 [&_.card]:border-[rgba(148,163,184,0.16)] [&_.card]:bg-[rgba(11,14,20,0.78)] [&_.card]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] [&_.input-number]:border-[rgba(148,163,184,0.22)] [&_.input-number]:bg-[rgba(5,8,13,0.72)] [&_input[type=range]]:accent-emerald">
           <div className="rounded-[1.125rem] border border-[rgba(34,197,94,0.14)] bg-[rgba(34,197,94,0.045)] px-4 py-3.5">
             <div className="label text-emerald">DEPLOYMENT ASSUMPTIONS</div>
             <p className="mt-1 text-sm text-muted">Choose how quickly the capital enters the market.</p>
@@ -315,12 +338,12 @@ export default function DCA() {
         </div>
 
         <div>
-          <div className="card relative grid min-w-0 gap-4 overflow-hidden border-[rgba(148,163,184,0.18)] bg-[rgba(8,12,18,0.84)] shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-gradient-to-b before:from-emerald/60 before:via-emerald/20 before:to-transparent">
+          <div className="card relative grid min-w-0 gap-4 overflow-hidden p-4 lg:p-6 border-[rgba(148,163,184,0.18)] bg-[rgba(8,12,18,0.84)] shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-gradient-to-b before:from-emerald/60 before:via-emerald/20 before:to-transparent">
             <div className="border-b border-white/10 pb-4">
               <div className="label text-emerald">PATH AS PROOF</div>
               <p className="mt-1 text-sm text-muted">The lines show how timing changes the ending.</p>
             </div>
-            <div className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(148,163,184,0.12)] bg-[rgba(2,6,12,0.42)] px-3 pb-1 pt-3 md:px-4 md:pb-2 md:pt-4">
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(148,163,184,0.12)] bg-[rgba(2,6,12,0.42)] px-2 pb-1 pt-3 md:px-4 md:pb-2 md:pt-4">
               <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
             </div>
             <Callout>{t.dca.callout}</Callout>
@@ -332,7 +355,7 @@ export default function DCA() {
           workbench so the dominant answer sits right above the inputs. Hidden on
           desktop (display:none removes the duplicate from the a11y tree), where
           these render inside the result section above. */}
-      <div className="mt-6 grid gap-4 lg:hidden">
+      <div className="mt-5 grid gap-3 lg:hidden">
         <PlainEnglish>
           {t.dca.plainEnglish({
             capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
@@ -345,7 +368,7 @@ export default function DCA() {
             lumpWins,
           })}
         </PlainEnglish>
-        <div className="grid gap-4 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+        <div className="grid gap-3 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
           <HeroNumber
             label={t.dca.heroLump}
             value={
@@ -365,6 +388,12 @@ export default function DCA() {
             tone="default"
           />
         </div>
+      </div>
+
+      {/* Mobile-only: Share kept at the bottom so it never delays the calculator.
+          (display:none at lg — desktop shows Share in the ModeHeader above.) */}
+      <div className="mt-6 lg:hidden">
+        <ShareButton params={dca as unknown as Record<string, string | number>} />
       </div>
     </div>
   );

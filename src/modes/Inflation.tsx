@@ -122,16 +122,36 @@ export default function Inflation() {
 
   return (
     <div>
-      <ModeHeader
-        eyebrow={t.inflation.eyebrow}
-        title={t.inflation.title}
-        subtitle={t.inflation.subtitle}
-        actions={<ShareButton params={inflation as unknown as Record<string, number>} />}
-      />
+      {/* Desktop intro — original ModeHeader (with Share) + Explainer. Hidden on mobile,
+          which uses the compact intro below and moves Share lower. */}
+      <div className="hidden lg:block">
+        <ModeHeader
+          eyebrow={t.inflation.eyebrow}
+          title={t.inflation.title}
+          subtitle={t.inflation.subtitle}
+          actions={<ShareButton params={inflation as unknown as Record<string, number>} />}
+        />
 
-      <ModeExplainer summary={t.inflation.explainerSummary}>{t.inflation.explainer}</ModeExplainer>
+        <ModeExplainer summary={t.inflation.explainerSummary}>{t.inflation.explainer}</ModeExplainer>
+      </div>
 
-      <ScenarioPresets<InflationInputs> presets={presets} onApply={(v) => setInflation(v)} title={t.presets.inflation.title} />
+      {/* Mobile intro — compact eyebrow/title/subtitle, no Share, tight spacing. */}
+      <div className="mb-4 lg:hidden">
+        <div className="label mb-1 text-emerald">{t.inflation.eyebrow}</div>
+        <h1 className="display-tight text-2xl leading-tight text-ink">{t.inflation.title}</h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-snug text-muted">{t.inflation.subtitle}</p>
+      </div>
+
+      {/* Mobile explanation — collapsed and compact, near the top so users can understand
+          the mode before interacting. Desktop shows it up top inside the block above. */}
+      <div className="mb-4 lg:hidden [&>.mode-explainer]:mb-0">
+        <ModeExplainer summary={t.inflation.explainerSummary}>{t.inflation.explainer}</ModeExplainer>
+      </div>
+
+      {/* Presets — single horizontal scroll row on mobile; original wrapped row at lg. */}
+      <div className="[&_.flex-wrap]:flex-nowrap [&_.flex-wrap]:overflow-x-auto [&_.flex-wrap]:pb-1 [&_.flex-wrap>button]:shrink-0 [&>div]:mb-4 lg:[&_.flex-wrap]:flex-wrap lg:[&_.flex-wrap]:overflow-visible lg:[&_.flex-wrap]:pb-0 lg:[&>div]:mb-6">
+        <ScenarioPresets<InflationInputs> presets={presets} onApply={(v) => setInflation(v)} title={t.presets.inflation.title} />
+      </div>
 
       <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
         <div className="label mb-4 text-emerald">REAL VALUE SUMMARY</div>
@@ -146,7 +166,7 @@ export default function Inflation() {
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.75fr)] lg:items-start">
           <div className="grid gap-4">
-            <section className="card border-emerald/30 bg-emerald/5">
+            <section className="card p-5 lg:p-6 border-emerald/30 bg-emerald/5">
               <div className="label text-emerald">{t.inflation.heroReal}</div>
               <div
                 className={`mono mt-2 break-words text-4xl font-semibold tracking-tight text-emerald sm:text-5xl ${styles.resultValue}`}
@@ -159,23 +179,27 @@ export default function Inflation() {
               <div className="mt-2 text-sm text-muted">{t.inflation.heroRealSub}</div>
             </section>
 
-            <PlainEnglish>
-              {t.inflation.plainEnglish({
-                years: recalcTextValue<number>(debounced.years, 'muted', debounced.years),
-                nominal: recalcTextValue<string>(finalNominal, 'muted', displayNominal, exactNominal),
-                real: recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal),
-                gap: recalcTextValue<string>(gap, 'red', displayGap, exactGap),
-                realReturn: recalcTextValue<string>(realReturn, 'muted', formatPercent(realReturn)),
-                annualReturn: recalcTextValue<string>(
-                  debounced.annualReturn,
-                  'muted',
-                  formatPercent(debounced.annualReturn)
-                ),
-              })}
-            </PlainEnglish>
+            {/* Desktop keeps Plain English beside the answer; on mobile it moves below the chart. */}
+            <div className="hidden lg:block">
+              <PlainEnglish>
+                {t.inflation.plainEnglish({
+                  years: recalcTextValue<number>(debounced.years, 'muted', debounced.years),
+                  nominal: recalcTextValue<string>(finalNominal, 'muted', displayNominal, exactNominal),
+                  real: recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal),
+                  gap: recalcTextValue<string>(gap, 'red', displayGap, exactGap),
+                  realReturn: recalcTextValue<string>(realReturn, 'muted', formatPercent(realReturn)),
+                  annualReturn: recalcTextValue<string>(
+                    debounced.annualReturn,
+                    'muted',
+                    formatPercent(debounced.annualReturn)
+                  ),
+                })}
+              </PlainEnglish>
+            </div>
           </div>
 
-          <div className="grid gap-4">
+          {/* Secondary cards: desktop column. On mobile these move below the chart. */}
+          <div className="hidden gap-4 lg:grid">
             <HeroNumber
               label={t.inflation.heroNominal}
               value={
@@ -290,6 +314,53 @@ export default function Inflation() {
           </div>
           <Callout>{t.inflation.callout(recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal))}</Callout>
         </div>
+      </div>
+
+      {/* Mobile-only: Plain English + secondary cards grouped after the chart so the
+          dominant real value sits right above the inputs. display:none at lg (desktop
+          renders these inside the result section above — no duplicate exposure). */}
+      <div className="mt-5 grid gap-3 lg:hidden">
+        <PlainEnglish>
+          {t.inflation.plainEnglish({
+            years: recalcTextValue<number>(debounced.years, 'muted', debounced.years),
+            nominal: recalcTextValue<string>(finalNominal, 'muted', displayNominal, exactNominal),
+            real: recalcTextValue<string>(finalReal, 'emerald', displayReal, exactReal),
+            gap: recalcTextValue<string>(gap, 'red', displayGap, exactGap),
+            realReturn: recalcTextValue<string>(realReturn, 'muted', formatPercent(realReturn)),
+            annualReturn: recalcTextValue<string>(
+              debounced.annualReturn,
+              'muted',
+              formatPercent(debounced.annualReturn)
+            ),
+          })}
+        </PlainEnglish>
+        <div className="grid gap-3">
+          <HeroNumber
+            label={t.inflation.heroNominal}
+            value={
+              <RecalcPulse valueKey={finalNominal} tone="muted" title={exactNominal}>
+                {displayNominal}
+              </RecalcPulse>
+            }
+            tone="default"
+            sublabel={t.inflation.heroNominalSub}
+          />
+          <HeroNumber
+            label={t.inflation.heroDrag}
+            value={
+              <RecalcPulse valueKey={gap} tone="red" title={exactDrag}>
+                {displayDrag}
+              </RecalcPulse>
+            }
+            tone="negative"
+            sublabel={t.inflation.heroDragOfNominal(formatPercent(gap / Math.max(finalNominal, 1)))}
+          />
+        </div>
+      </div>
+
+      {/* Mobile-only: Share kept at the bottom so it never delays the calculator. */}
+      <div className="mt-6 lg:hidden">
+        <ShareButton params={inflation as unknown as Record<string, number>} />
       </div>
     </div>
   );

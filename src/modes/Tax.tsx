@@ -194,16 +194,35 @@ export default function Tax() {
     <div>
       <style>{recalcPulseStyles}</style>
 
-      <ModeHeader
-        eyebrow={t.tax.eyebrow}
-        title="The wrapper changes the ending."
-        subtitle={<>Same saving power, same return, different tax timing.</>}
-        actions={<ShareButton params={{ ...tax, futureWithdrawalTaxRate } as unknown as Record<string, number>} />}
-      />
+      {/* Desktop intro — original ModeHeader (with Share) + Explainer. Hidden on mobile,
+          which uses the compact intro below and moves Share lower. */}
+      <div className="hidden lg:block">
+        <ModeHeader
+          eyebrow={t.tax.eyebrow}
+          title="The wrapper changes the ending."
+          subtitle={<>Same saving power, same return, different tax timing.</>}
+          actions={<ShareButton params={{ ...tax, futureWithdrawalTaxRate } as unknown as Record<string, number>} />}
+        />
 
-      <ModeExplainer summary={t.tax.explainerSummary}>{t.tax.explainer}</ModeExplainer>
+        <ModeExplainer summary={t.tax.explainerSummary}>{t.tax.explainer}</ModeExplainer>
+      </div>
 
-      <ScenarioPresets<TaxInputs> presets={presets} onApply={(v) => setTax(v)} title={t.presets.tax.title} />
+      {/* Mobile intro — compact eyebrow/title/subtitle, no Share, tight spacing. */}
+      <div className="mb-4 lg:hidden">
+        <div className="label mb-1 text-emerald">{t.tax.eyebrow}</div>
+        <h1 className="display-tight text-2xl leading-tight text-ink">The wrapper changes the ending.</h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-snug text-muted">Same saving power, same return, different tax timing.</p>
+      </div>
+
+      {/* Mobile explanation — collapsed and compact, near the top. Desktop shows it up top. */}
+      <div className="mb-4 lg:hidden [&>.mode-explainer]:mb-0">
+        <ModeExplainer summary={t.tax.explainerSummary}>{t.tax.explainer}</ModeExplainer>
+      </div>
+
+      {/* Presets — single horizontal scroll row on mobile; original wrapped row at lg. */}
+      <div className="[&_.flex-wrap]:flex-nowrap [&_.flex-wrap]:overflow-x-auto [&_.flex-wrap]:pb-1 [&_.flex-wrap>button]:shrink-0 [&>div]:mb-4 lg:[&_.flex-wrap]:flex-wrap lg:[&_.flex-wrap]:overflow-visible lg:[&_.flex-wrap]:pb-0 lg:[&>div]:mb-6">
+        <ScenarioPresets<TaxInputs> presets={presets} onApply={(v) => setTax(v)} title={t.presets.tax.title} />
+      </div>
 
       <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
         <div className="label mb-4 text-emerald">AFTER-TAX RESULT</div>
@@ -251,6 +270,8 @@ export default function Tax() {
               </div>
             </section>
 
+            {/* Desktop keeps Plain English beside the answer; on mobile it moves below the chart. */}
+            <div className="hidden lg:block">
             <PlainEnglish>
               {hasRoundedTie ? (
                 <>
@@ -294,9 +315,11 @@ export default function Tax() {
                 </>
               )}
             </PlainEnglish>
+            </div>
           </div>
 
-          <div className="grid gap-4">
+          {/* Secondary cards: desktop column. On mobile these move below the chart. */}
+          <div className="hidden gap-4 lg:grid">
             {accounts.map((account) => {
               const isLeader = account.roundedAfterTax === topRounded;
               const isTaxable = account.key === 'taxable';
@@ -464,6 +487,102 @@ export default function Tax() {
             </Callout>
           </div>
         </div>
+      </div>
+
+      {/* Mobile-only: Plain English + account cards grouped after the chart so the
+          after-tax result sits right above the inputs. display:none at lg (desktop renders
+          these inside the result section above — no duplicate a11y exposure). */}
+      <div className="mt-5 grid gap-3 lg:hidden">
+        <PlainEnglish>
+          {hasRoundedTie ? (
+            <>
+              With these inputs,{' '}
+              <strong className="text-ink">
+                <RecalcPulse valueKey={resultHeadlineKey} tone="muted">
+                  {tiedLeaders.map((account) => account.label).join(' and ')}
+                </RecalcPulse>
+              </strong>{' '}
+              show the same after-tax result once rounded:{' '}
+              <strong className="text-gain">
+                <RecalcPulse valueKey={leader.roundedAfterTax} tone="emerald">
+                  {leaderAfterTaxDisplay}
+                </RecalcPulse>
+              </strong>.
+              There is no clear winner under these assumptions; current and future tax rates make the wrapper choice
+              effectively a tie in the displayed result.
+            </>
+          ) : (
+            <>
+              With these inputs,{' '}
+              <strong className="text-ink">
+                <RecalcPulse valueKey={resultHeadlineKey} tone="muted">
+                  {leader.label}
+                </RecalcPulse>
+              </strong>{' '}
+              leaves the most usable money after tax:{' '}
+              <strong className="text-gain">
+                <RecalcPulse valueKey={leader.roundedAfterTax} tone="emerald">
+                  {leaderAfterTaxDisplay}
+                </RecalcPulse>
+              </strong>.
+              That is{' '}
+              <strong className="text-gain">
+                <RecalcPulse valueKey={resultDeltaKey} tone="emerald">
+                  {resultDeltaValue}
+                </RecalcPulse>
+              </strong>{' '}
+              more than <strong className="text-ink">{nextBest.label}</strong>. The difference comes from account
+              structure and tax timing, not a different fund, return assumption, or saving power.
+            </>
+          )}
+        </PlainEnglish>
+        <div className="grid gap-3">
+          {accounts.map((account) => {
+            const isLeader = account.roundedAfterTax === topRounded;
+            const isTaxable = account.key === 'taxable';
+
+            return (
+              <section
+                key={account.key}
+                className={`relative overflow-hidden rounded-xl border p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] ${
+                  isLeader
+                    ? 'border-emerald/20 bg-emerald/[0.035]'
+                    : isTaxable
+                      ? 'border-[rgba(248,113,113,0.12)] bg-[rgba(239,68,68,0.025)]'
+                      : 'border-[rgba(148,163,184,0.16)] bg-[rgba(11,14,20,0.72)]'
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className={`absolute inset-y-0 left-0 w-[3px] ${
+                    isLeader ? 'bg-emerald/80' : isTaxable ? 'bg-red-400/45' : 'bg-border-strong'
+                  }`}
+                />
+                <div className={`label ${isLeader ? 'text-emerald' : isTaxable ? 'text-red-300/80' : 'text-muted'}`}>
+                  {account.heroLabel}
+                </div>
+                <div
+                  className={`mono mt-1.5 break-words text-2xl font-semibold tracking-tight ${
+                    isLeader ? 'text-emerald' : isTaxable ? 'text-red-200/90' : 'text-ink'
+                  }`}
+                >
+                  <RecalcPulse
+                    valueKey={`${account.key}-${account.roundedAfterTax}`}
+                    tone={isLeader ? 'emerald' : isTaxable ? 'red' : 'muted'}
+                  >
+                    {formatCurrency(account.afterTax)}
+                  </RecalcPulse>
+                </div>
+                <p className="mt-1.5 text-xs leading-snug text-muted">{account.note}</p>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Mobile-only: Share kept at the bottom so it never delays the calculator. */}
+      <div className="mt-6 lg:hidden">
+        <ShareButton params={{ ...tax, futureWithdrawalTaxRate } as unknown as Record<string, number>} />
       </div>
     </div>
   );

@@ -297,16 +297,39 @@ export default function MonteCarlo() {
     <div>
       <style>{recalcPulseStyles}</style>
 
-      <ModeHeader
-        eyebrow={t.montecarlo.eyebrow}
-        title={isWithdrawal ? t.montecarlo.titleWithdraw : t.montecarlo.titleAccum}
-        subtitle={isWithdrawal ? t.montecarlo.subtitleWithdraw : t.montecarlo.subtitleAccum}
-        actions={<ShareButton params={mc as unknown as Record<string, string | number>} />}
-      />
+      {/* Desktop intro — original ModeHeader (with Share) + Explainer. Hidden on mobile,
+          which uses the compact intro below and moves Share lower. */}
+      <div className="hidden lg:block">
+        <ModeHeader
+          eyebrow={t.montecarlo.eyebrow}
+          title={isWithdrawal ? t.montecarlo.titleWithdraw : t.montecarlo.titleAccum}
+          subtitle={isWithdrawal ? t.montecarlo.subtitleWithdraw : t.montecarlo.subtitleAccum}
+          actions={<ShareButton params={mc as unknown as Record<string, string | number>} />}
+        />
 
-      <ModeExplainer summary={t.montecarlo.explainerSummary}>{t.montecarlo.explainer}</ModeExplainer>
+        <ModeExplainer summary={t.montecarlo.explainerSummary}>{t.montecarlo.explainer}</ModeExplainer>
+      </div>
 
-      <ScenarioPresets<MonteCarloInputs> presets={presets} onApply={(v) => setMC(v)} title={t.presets.monteCarlo.title} />
+      {/* Mobile intro — compact eyebrow/title/subtitle, no Share, tight spacing. */}
+      <div className="mb-4 lg:hidden">
+        <div className="label mb-1 text-emerald">{t.montecarlo.eyebrow}</div>
+        <h1 className="display-tight text-2xl leading-tight text-ink">
+          {isWithdrawal ? t.montecarlo.titleWithdraw : t.montecarlo.titleAccum}
+        </h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-snug text-muted">
+          {isWithdrawal ? t.montecarlo.subtitleWithdraw : t.montecarlo.subtitleAccum}
+        </p>
+      </div>
+
+      {/* Mobile explanation — collapsed and compact, near the top. Desktop shows it up top. */}
+      <div className="mb-4 lg:hidden [&>.mode-explainer]:mb-0">
+        <ModeExplainer summary={t.montecarlo.explainerSummary}>{t.montecarlo.explainer}</ModeExplainer>
+      </div>
+
+      {/* Presets — single horizontal scroll row on mobile; original wrapped row at lg. */}
+      <div className="[&_.flex-wrap]:flex-nowrap [&_.flex-wrap]:overflow-x-auto [&_.flex-wrap]:pb-1 [&_.flex-wrap>button]:shrink-0 [&>div]:mb-4 lg:[&_.flex-wrap]:flex-wrap lg:[&_.flex-wrap]:overflow-visible lg:[&_.flex-wrap]:pb-0 lg:[&>div]:mb-6">
+        <ScenarioPresets<MonteCarloInputs> presets={presets} onApply={(v) => setMC(v)} title={t.presets.monteCarlo.title} />
+      </div>
 
       <SanityWarning
         when={unsustainableWithdrawal}
@@ -334,7 +357,7 @@ export default function MonteCarlo() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.9fr)] lg:items-start">
           <div className="grid gap-4">
             <section
-              className={`card relative overflow-hidden shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] ${dominantCardStyles[dominantTone]}`}
+              className={`card p-5 lg:p-6 relative overflow-hidden shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] ${dominantCardStyles[dominantTone]}`}
             >
               <span aria-hidden className={`absolute inset-y-0 left-0 w-[3px] ${dominantAccentStyles[dominantTone]}`} />
               <div className={`label ${dominantLabelStyles[dominantTone]}`}>{dominantLabel}</div>
@@ -361,6 +384,8 @@ export default function MonteCarlo() {
               )}
             </section>
 
+            {/* Desktop keeps Plain English beside the answer; on mobile it moves below the chart. */}
+            <div className="hidden lg:block">
             <PlainEnglish>
               {isWithdrawal
                 ? t.montecarlo.plainEnglishWithdraw({
@@ -381,9 +406,11 @@ export default function MonteCarlo() {
                     p90: formatCurrency(p90End),
                   })}
             </PlainEnglish>
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          {/* Secondary cards: desktop column. On mobile these move below the chart. */}
+          <div className="hidden gap-3 sm:grid-cols-2 lg:grid lg:grid-cols-1 xl:grid-cols-2">
             {secondary.map((metric) => (
               <section
                 key={metric.key}
@@ -531,6 +558,57 @@ export default function MonteCarlo() {
             <Callout>{t.montecarlo.callout}</Callout>
           </div>
         </div>
+      </div>
+
+      {/* Mobile-only: Plain English + percentile/secondary cards grouped after the chart so
+          the dominant answer sits right above the inputs. display:none at lg (desktop renders
+          these inside the result section above — no duplicate a11y exposure). */}
+      <div className="mt-5 grid gap-3 lg:hidden">
+        <PlainEnglish>
+          {isWithdrawal
+            ? t.montecarlo.plainEnglishWithdraw({
+                iterations: mc.iterations,
+                balance: formatCurrency(mc.startingBalance),
+                withdrawal: formatCurrency(mc.monthlyWithdrawal),
+                survivalPct: Math.round(survivalRate * 100),
+                years: mc.years,
+                tone: survivalTone,
+              })
+            : t.montecarlo.plainEnglishAccum({
+                iterations: mc.iterations,
+                balance: formatCurrency(mc.startingBalance),
+                contribution: formatCurrency(mc.monthlyContribution),
+                years: mc.years,
+                median: formatCurrency(medianEnd),
+                p10: formatCurrency(p10End),
+                p90: formatCurrency(p90End),
+              })}
+        </PlainEnglish>
+        <div className="grid gap-3">
+          {secondary.map((metric) => (
+            <section
+              key={metric.key}
+              className={`relative overflow-hidden rounded-xl border p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] ${secondaryCardStyles[metric.tone]}`}
+            >
+              <span
+                aria-hidden
+                className={`absolute inset-y-0 left-0 w-[3px] ${metric.tone === 'red' ? 'bg-red-400/45' : 'bg-border-strong'}`}
+              />
+              <div className={`label ${secondaryLabelStyles[metric.tone]}`}>{metric.label}</div>
+              <div className={`mono mt-1.5 break-words text-2xl font-semibold tracking-tight ${secondaryNumberStyles[metric.tone]}`}>
+                <RecalcPulse valueKey={metric.value} tone={metric.tone === 'red' ? 'red' : 'muted'}>
+                  {metric.value}
+                </RecalcPulse>
+              </div>
+              <p className="mt-1.5 text-xs leading-snug text-muted">{metric.note}</p>
+            </section>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile-only: Share kept at the bottom so it never delays the calculator. */}
+      <div className="mt-6 lg:hidden">
+        <ShareButton params={mc as unknown as Record<string, string | number>} />
       </div>
     </div>
   );

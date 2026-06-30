@@ -182,16 +182,35 @@ export default function Debt() {
     <div>
       <style>{recalcPulseStyles}</style>
 
-      <ModeHeader
-        eyebrow={t.debt.eyebrow}
-        title={t.debt.title}
-        subtitle={t.debt.subtitle}
-        actions={<ShareButton params={debt as unknown as Record<string, number>} />}
-      />
+      {/* Desktop intro — original ModeHeader (with Share) + Explainer. Hidden on mobile,
+          which uses the compact intro below and moves Share lower. */}
+      <div className="hidden lg:block">
+        <ModeHeader
+          eyebrow={t.debt.eyebrow}
+          title={t.debt.title}
+          subtitle={t.debt.subtitle}
+          actions={<ShareButton params={debt as unknown as Record<string, number>} />}
+        />
 
-      <ModeExplainer summary={t.debt.explainerSummary}>{t.debt.explainer}</ModeExplainer>
+        <ModeExplainer summary={t.debt.explainerSummary}>{t.debt.explainer}</ModeExplainer>
+      </div>
 
-      <ScenarioPresets<DebtInputs> presets={presets} onApply={(v) => setDebt(v)} title={t.presets.debt.title} />
+      {/* Mobile intro — compact eyebrow/title/subtitle, no Share, tight spacing. */}
+      <div className="mb-4 lg:hidden">
+        <div className="label mb-1 text-emerald">{t.debt.eyebrow}</div>
+        <h1 className="display-tight text-2xl leading-tight text-ink">{t.debt.title}</h1>
+        <p className="mt-1.5 max-w-xl text-sm leading-snug text-muted">{t.debt.subtitle}</p>
+      </div>
+
+      {/* Mobile explanation — collapsed and compact, near the top. Desktop shows it up top. */}
+      <div className="mb-4 lg:hidden [&>.mode-explainer]:mb-0">
+        <ModeExplainer summary={t.debt.explainerSummary}>{t.debt.explainer}</ModeExplainer>
+      </div>
+
+      {/* Presets — single horizontal scroll row on mobile; original wrapped row at lg. */}
+      <div className="[&_.flex-wrap]:flex-nowrap [&_.flex-wrap]:overflow-x-auto [&_.flex-wrap]:pb-1 [&_.flex-wrap>button]:shrink-0 [&>div]:mb-4 lg:[&_.flex-wrap]:flex-wrap lg:[&_.flex-wrap]:overflow-visible lg:[&_.flex-wrap]:pb-0 lg:[&>div]:mb-6">
+        <ScenarioPresets<DebtInputs> presets={presets} onApply={(v) => setDebt(v)} title={t.presets.debt.title} />
+      </div>
 
       <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
         <div className="label mb-4 text-red-300/80">PAYOFF RESULT</div>
@@ -213,6 +232,8 @@ export default function Debt() {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{resultSummary}</p>
             </section>
 
+            {/* Desktop keeps Plain English beside the answer; on mobile it moves below the chart. */}
+            <div className="hidden lg:block">
             <PlainEnglish>
               {result.debtResult.paidOff ? (
                 <>
@@ -279,9 +300,11 @@ export default function Debt() {
                 </>
               )}
             </PlainEnglish>
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          {/* Secondary cards: desktop column. On mobile these move below the chart. */}
+          <div className="hidden gap-3 sm:grid-cols-2 lg:grid lg:grid-cols-1 xl:grid-cols-2">
             <section className="rounded-xl border border-[rgba(248,113,113,0.16)] bg-[rgba(239,68,68,0.035)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
               <div className="label text-red-300/85">{t.debt.heroDebtCosts}</div>
               <div className="mono mt-1.5 break-words text-2xl font-semibold tracking-tight text-red-200">
@@ -454,6 +477,134 @@ export default function Debt() {
             </Callout>
           </div>
         </div>
+      </div>
+
+      {/* Mobile-only: Plain English + secondary cards grouped after the charts so the
+          payoff result sits right above the inputs. display:none at lg (desktop renders
+          these inside the result section above — no duplicate a11y exposure). */}
+      <div className="mt-5 grid gap-3 lg:hidden">
+        <PlainEnglish>
+          {result.debtResult.paidOff ? (
+            <>
+              With a{' '}
+              <strong>
+                <RecalcPulse valueKey={`balance-${balanceText}`} tone="muted">
+                  {balanceText}
+                </RecalcPulse>
+              </strong>{' '}
+              balance at{' '}
+              <strong>
+                <RecalcPulse valueKey={`rate-${ratePctText}`} tone="muted">
+                  {ratePctText}
+                </RecalcPulse>
+              </strong>{' '}
+              and{' '}
+              <strong>
+                <RecalcPulse valueKey={`payment-${paymentAssumptionText}`} tone="muted">
+                  {paymentAssumptionText}
+                </RecalcPulse>
+              </strong>{', the debt clears in '}
+              <strong className="text-ink">
+                <RecalcPulse valueKey={payoffPulseKey} tone="muted">
+                  {payoffText}
+                </RecalcPulse>
+              </strong>{'. Interest costs '}
+              <strong className="text-loss">
+                <RecalcPulse valueKey={interestPulseKey} tone="red">
+                  {interestText}
+                </RecalcPulse>
+              </strong>{', so the total cash paid is '}
+              <strong className="text-ink">
+                <RecalcPulse valueKey={totalPaidPulseKey} tone="muted">
+                  {totalPaidText}
+                </RecalcPulse>
+              </strong>{'. The pressure is not moral; it is the math of interest taking the first cut every month.'}
+            </>
+          ) : (
+            <>
+              With a{' '}
+              <strong>
+                <RecalcPulse valueKey={`balance-${balanceText}`} tone="muted">
+                  {balanceText}
+                </RecalcPulse>
+              </strong>{' '}
+              balance at{' '}
+              <strong>
+                <RecalcPulse valueKey={`rate-${ratePctText}`} tone="muted">
+                  {ratePctText}
+                </RecalcPulse>
+              </strong>{' '}
+              and{' '}
+              <strong>
+                <RecalcPulse valueKey={`payment-${paymentAssumptionText}`} tone="muted">
+                  {paymentAssumptionText}
+                </RecalcPulse>
+              </strong>{', the balance does not reach zero in the modeled path. Starting monthly interest is about '}
+              <strong className="text-loss">
+                <RecalcPulse valueKey={monthlyInterestPulseKey} tone="red">
+                  {monthlyInterestText}
+                </RecalcPulse>
+              </strong>
+              {'. Increasing the payment changes how much of each month goes to principal instead of interest.'}
+            </>
+          )}
+        </PlainEnglish>
+        <div className="grid gap-3">
+          <section className="rounded-xl border border-[rgba(248,113,113,0.16)] bg-[rgba(239,68,68,0.035)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+            <div className="label text-red-300/85">{t.debt.heroDebtCosts}</div>
+            <div className="mono mt-1.5 break-words text-2xl font-semibold tracking-tight text-red-200">
+              <RecalcPulse valueKey={interestPulseKey} tone="red">
+                {interestText}
+              </RecalcPulse>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug text-muted">{t.debt.heroDebtCostsSub}</p>
+          </section>
+
+          <section className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[rgba(11,14,20,0.72)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+            <div className="label text-muted">Total paid</div>
+            <div className="mono mt-1.5 break-words text-2xl font-semibold tracking-tight text-ink">
+              <RecalcPulse valueKey={totalPaidPulseKey} tone="muted">
+                {totalPaidText}
+              </RecalcPulse>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug text-muted">Principal plus interest before payoff.</p>
+          </section>
+
+          <section className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[rgba(11,14,20,0.72)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+            <div className="label text-muted">Modeled end balance</div>
+            <div
+              className={`mono mt-1.5 break-words text-2xl font-semibold tracking-tight ${
+                result.debtResult.paidOff ? 'text-emerald' : 'text-red-200'
+              }`}
+            >
+              <RecalcPulse valueKey={endBalancePulseKey} tone={result.debtResult.paidOff ? 'emerald' : 'red'}>
+                {finalDebtBalanceText}
+              </RecalcPulse>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug text-muted">
+              {result.debtResult.paidOff
+                ? 'The balance reaches zero in the schedule.'
+                : 'Remaining balance at the modeled end.'}
+            </p>
+          </section>
+
+          <section className="rounded-xl border border-[rgba(148,163,184,0.16)] bg-[rgba(11,14,20,0.72)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
+            <div className="label text-muted">{t.debt.heroInvestmentBecomes}</div>
+            <div className="mono mt-1.5 break-words text-2xl font-semibold tracking-tight text-ink">
+              <RecalcPulse valueKey={investmentPulseKey} tone="muted">
+                {finalInvestmentText}
+              </RecalcPulse>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug text-muted">
+              {t.debt.heroInvestmentBecomesSub(`${(debounced.rate * 100).toFixed(1)}%`)}
+            </p>
+          </section>
+        </div>
+      </div>
+
+      {/* Mobile-only: Share kept at the bottom so it never delays the calculator. */}
+      <div className="mt-6 lg:hidden">
+        <ShareButton params={debt as unknown as Record<string, number>} />
       </div>
     </div>
   );

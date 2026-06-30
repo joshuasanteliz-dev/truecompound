@@ -69,7 +69,7 @@ export function Layout() {
             className="flex items-center gap-2 group shrink-0"
           >
             <Logo />
-            <span className="display text-lg text-ink hidden sm:inline">{t.common.appName}</span>
+            <span className="display text-base text-ink sm:text-lg">{t.common.appName}</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
@@ -94,13 +94,13 @@ export function Layout() {
           </div>
         </div>
         <nav className="md:hidden border-t border-border overflow-x-auto">
-          <div className="mx-auto max-w-6xl flex gap-1 px-4 py-2">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-1 px-4 py-2 sm:px-6 lg:px-8">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-3 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${
+                  `px-2 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
                     isActive ? 'text-emerald bg-emerald/10' : 'text-muted'
                   }`
                 }
