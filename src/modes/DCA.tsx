@@ -206,32 +206,32 @@ export default function DCA() {
             </PlainEnglish>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
             <HeroNumber
               label={t.dca.heroLump}
               value={
-                <RecalcPulse valueKey={finalLump} tone={lumpWins && !isCloseResult ? 'emerald' : 'muted'}>
+                <RecalcPulse valueKey={finalLump} tone="muted">
                   {formatCurrency(finalLump)}
                 </RecalcPulse>
               }
-              tone={lumpWins && !isCloseResult ? 'positive' : 'default'}
+              tone="default"
             />
             <HeroNumber
               label={t.dca.heroDCA}
               value={
-                <RecalcPulse valueKey={finalDCA} tone={!lumpWins && !isCloseResult ? 'emerald' : 'muted'}>
+                <RecalcPulse valueKey={finalDCA} tone="muted">
                   {formatCurrency(finalDCA)}
                 </RecalcPulse>
               }
-              tone={!lumpWins && !isCloseResult ? 'positive' : 'default'}
+              tone="default"
             />
           </div>
         </div>
       </section>
 
-      <div className="grid gap-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4 lg:grid-cols-[320px_1fr] lg:gap-8">
-        <div className="grid gap-3 self-start">
-          <div className="rounded-xl border border-emerald/15 bg-emerald/[0.04] p-4">
+      <div className="relative isolate grid gap-4 overflow-hidden rounded-3xl border border-[rgba(148,163,184,0.16)] bg-[rgba(5,8,13,0.72)] p-4 shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-emerald/35 before:to-transparent lg:grid-cols-[320px_1fr] lg:gap-5 lg:p-5">
+        <div className="grid gap-3 self-start [&_.card]:border-[rgba(148,163,184,0.16)] [&_.card]:bg-[rgba(11,14,20,0.78)] [&_.card]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)] [&_.input-number]:border-[rgba(148,163,184,0.22)] [&_.input-number]:bg-[rgba(5,8,13,0.72)] [&_input[type=range]]:accent-emerald">
+          <div className="rounded-[1.125rem] border border-[rgba(34,197,94,0.14)] bg-[rgba(34,197,94,0.045)] px-4 py-3.5">
             <div className="label text-emerald">DEPLOYMENT ASSUMPTIONS</div>
             <p className="mt-1 text-sm text-muted">Choose how quickly the capital enters the market.</p>
           </div>
@@ -271,8 +271,8 @@ export default function DCA() {
                         onClick={() => setDCA({ presetId: group.items[0].id })}
                         className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                           active
-                            ? 'border-emerald bg-emerald/15 text-emerald'
-                            : 'border-border bg-surface-2 text-muted hover:border-emerald/60 hover:text-ink'
+                            ? 'border-emerald bg-emerald/10 text-ink'
+                            : 'border-border bg-surface text-ink-dim hover:border-emerald hover:text-ink'
                         }`}
                       >
                         {group.label}
@@ -296,7 +296,7 @@ export default function DCA() {
                         className={`rounded-xl border px-3 py-2 text-left text-xs font-semibold leading-snug transition-colors ${
                           active
                             ? 'border-emerald bg-emerald/10 text-ink'
-                            : 'border-border bg-surface-2/70 text-ink-dim hover:border-emerald/60 hover:text-ink'
+                            : 'border-border bg-surface text-ink-dim hover:border-emerald hover:text-ink'
                         }`}
                       >
                         {t.historicalSeries[p.id]?.label ?? p.label}
@@ -311,12 +311,14 @@ export default function DCA() {
         </div>
 
         <div>
-          <div className="card">
-            <div className="mb-4 border-b border-white/10 pb-4">
+          <div className="card relative grid min-w-0 gap-4 overflow-hidden border-[rgba(148,163,184,0.18)] bg-[rgba(8,12,18,0.84)] shadow-[inset_0_1px_0_rgba(245,247,250,0.04)] before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-gradient-to-b before:from-emerald/60 before:via-emerald/20 before:to-transparent">
+            <div className="border-b border-white/10 pb-4">
               <div className="label text-emerald">PATH AS PROOF</div>
               <p className="mt-1 text-sm text-muted">The lines show how timing changes the ending.</p>
             </div>
-            <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(148,163,184,0.12)] bg-[rgba(2,6,12,0.42)] px-3 pb-1 pt-3 md:px-4 md:pb-2 md:pt-4">
+              <GrowthChart series={series} xLabels={xLabels} xAxisLabel="Year" />
+            </div>
             <Callout>{t.dca.callout}</Callout>
           </div>
         </div>
