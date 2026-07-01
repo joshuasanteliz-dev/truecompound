@@ -10,9 +10,9 @@
   <text x="80" y="500" font-family="Inter, sans-serif" font-size="28" font-style="italic" fill="#0F766E">"Most calculators lie by omission. These don't."</text>
   <g transform="translate(80, 560)" font-family="Inter, sans-serif" font-size="20" fill="#6B7280">
     <text x="0" y="0">Inflation</text>
-    <text x="140" y="0">· DCA</text>
-    <text x="240" y="0">· Debt</text>
-    <text x="340" y="0">· Tax</text>
-    <text x="430" y="0">· Monte Carlo</text>
+    <text x="140" y="0">· Timing</text>
+    <text x="270" y="0">· Debt</text>
+    <text x="370" y="0">· Tax</text>
+    <text x="460" y="0">· Uncertainty</text>
   </g>
 </svg>
