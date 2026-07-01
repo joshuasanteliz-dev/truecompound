@@ -313,6 +313,7 @@ const OWNER = 'Joshua Santeliz';
 const OWNER_EMAIL = 'joshuasantelizacosta@gmail.com';
 const OWNER_GITHUB = 'https://github.com/joshuasanteliz-dev';
 const LAST_UPDATED = '2026-05-20';
+const PRIVACY_COOKIES_LAST_UPDATED = '2026-07-01';
 
 const en: Dictionary = {
   common: {
@@ -798,7 +799,7 @@ const en: Dictionary = {
   cookieNotice: {
     body: (
       <>
-        This site stores your inputs in your browser (localStorage) so refreshing doesn't reset them. It doesn't track you, doesn't log anything to a server, and uses no third-party cookies.
+        This site stores your inputs in your browser (localStorage) so refreshing doesn't reset them. It doesn't track you, doesn't send calculator inputs to an app server, and uses no third-party cookies.
       </>
     ),
     accept: 'Got it',
@@ -807,13 +808,13 @@ const en: Dictionary = {
   legal: {
     privacy: {
       title: 'Privacy Policy',
-      lastUpdated: `Last updated: ${LAST_UPDATED}`,
+      lastUpdated: `Last updated: ${PRIVACY_COOKIES_LAST_UPDATED}`,
       sections: [
         {
           heading: 'Summary in one sentence',
           body: (
             <p>
-              TrueCompound is a client-side calculator. It does not collect, transmit, or share any personal data with anyone. Your inputs stay in your browser.
+              TrueCompound does not require accounts, does not run a calculator-input backend, and keeps scenarios in your browser unless you choose to put them in a shareable URL.
             </p>
           ),
         },
@@ -829,14 +830,17 @@ const en: Dictionary = {
           heading: 'What data we process',
           body: (
             <>
-              <p>The site processes the following data, all of it locally in your own browser:</p>
+              <p>The site processes the following user-controlled data locally in your own browser:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
-                <li>The numeric inputs you type into the calculators (starting balance, monthly contribution, return rate, etc.).</li>
+                <li>The numeric inputs and scenarios you type into the calculators (starting balance, monthly contribution, return rate, etc.).</li>
                 <li>Your language preference (English or Spanish).</li>
-                <li>Whether you've dismissed the cookie/storage notice.</li>
+                <li>Whether you've dismissed the cookie/privacy storage notice.</li>
               </ul>
               <p className="mt-3">
-                This data is stored in <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> under the keys <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-v1</code>, <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-lang</code>, and <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-cookie-ack</code>. None of it leaves your device.
+                This data may be stored in <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> under the keys <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-v1</code>, <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-lang</code>, and <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-cookie-ack</code>. Calculator inputs are not submitted to a TrueCompound application server.
+              </p>
+              <p className="mt-3">
+                Share URLs can encode scenario settings in the URL itself. If you open or share one of those URLs, the URL may appear in browser history, messages, or standard hosting request logs.
               </p>
             </>
           ),
@@ -859,6 +863,9 @@ const en: Dictionary = {
               <p className="mt-3">
                 We use the browser's <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> as described above. localStorage entries are not transmitted to any server. You can clear them at any time from your browser's "site data" settings.
               </p>
+              <p className="mt-3">
+                We do not sell personal data and do not use marketing tracking.
+              </p>
             </>
           ),
         },
@@ -869,7 +876,7 @@ const en: Dictionary = {
               <p>The site loads the following external resources:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
                 <li><strong>Google Fonts</strong> (fonts.googleapis.com / fonts.gstatic.com) — to load the Inter and JetBrains Mono fonts. Google may receive your IP address as part of this request. See Google's privacy policy.</li>
-                <li><strong>Netlify</strong> (or similar static host) — the site's CDN. Standard request logs (IP, user-agent, request path) may be retained by the host for operational and security reasons. We don't access those logs.</li>
+                <li><strong>Netlify</strong> — the site's hosting/CDN provider. Standard technical logs (such as IP address, user-agent, requested URL, and timing/error information) may be processed for security, abuse prevention, debugging, and performance.</li>
               </ul>
               <p className="mt-3">
                 We do not embed iframes, social-media widgets, or comment systems.
@@ -878,10 +885,18 @@ const en: Dictionary = {
           ),
         },
         {
+          heading: 'No accounts or financial advice',
+          body: (
+            <p>
+              TrueCompound does not require accounts and is educational software, not financial, investment, tax, or legal advice. Do not enter information you consider sensitive, and do not treat calculator output as a recommendation.
+            </p>
+          ),
+        },
+        {
           heading: 'Your rights (GDPR Arts. 15–22)',
           body: (
             <>
-              <p>Because we don't hold any of your data on our servers, most GDPR rights are easy to exercise yourself:</p>
+              <p>Because calculator inputs and preferences are stored locally in your browser, most rights related to that data are easy to exercise yourself:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
                 <li><strong>Access:</strong> open your browser's developer tools → Application → Local Storage. The keys listed above contain everything we "have" about you.</li>
                 <li><strong>Deletion / right to be forgotten:</strong> clear the site's localStorage entries (browser settings → "Clear site data").</li>
@@ -1004,13 +1019,13 @@ const en: Dictionary = {
     },
     cookies: {
       title: 'Cookie & Local-Storage Policy',
-      lastUpdated: `Last updated: ${LAST_UPDATED}`,
+      lastUpdated: `Last updated: ${PRIVACY_COOKIES_LAST_UPDATED}`,
       sections: [
         {
           heading: "What we use",
           body: (
             <p>
-              TrueCompound does <strong>not</strong> use HTTP cookies. It uses your browser's <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> to remember three things: your calculator inputs, your language preference, and whether you've dismissed the storage notice.
+              TrueCompound currently does <strong>not</strong> set HTTP cookies, advertising cookies, or analytics cookies. It uses your browser's <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> or cookie-like storage only for preferences and saved calculator settings: language, cookie/privacy acknowledgment, and saved scenarios where applicable.
             </p>
           ),
         },
@@ -1022,9 +1037,9 @@ const en: Dictionary = {
               <ul className="list-disc pl-5 space-y-1.5">
                 <li><strong>Strictly necessary / functional:</strong> the localStorage entries are required to deliver the service you requested (a calculator that remembers your scenario). They do not require prior consent under Art. 5(3) of the ePrivacy Directive.</li>
               </ul>
-              <p className="mt-3">We do <strong>not</strong> use:</p>
+              <p className="mt-3">We currently do <strong>not</strong> use:</p>
               <ul className="list-disc pl-5 space-y-1.5">
-                <li>Analytics cookies / storage (no Google Analytics, no Plausible, no Matomo).</li>
+                <li>Analytics cookies / storage. If analytics are added later, this policy will be updated first and any required consent controls will be provided.</li>
                 <li>Advertising cookies / pixels.</li>
                 <li>Social-media tracking cookies.</li>
                 <li>Cross-site / third-party cookies.</li>
@@ -1047,7 +1062,7 @@ const en: Dictionary = {
                 <tbody className="text-ink-dim">
                   <tr className="border-b border-border">
                     <td className="py-2 pr-3 mono text-xs">whatifmoney-v1</td>
-                    <td className="py-2 pr-3">Saves the numeric inputs of every calculator so refreshing the page doesn't reset them.</td>
+                    <td className="py-2 pr-3">Saves calculator scenarios/settings so refreshing the page doesn't reset them.</td>
                     <td className="py-2">Until you clear browser storage</td>
                   </tr>
                   <tr className="border-b border-border">
@@ -1071,8 +1086,8 @@ const en: Dictionary = {
             <>
               <p>You can delete all TrueCompound storage at any time:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
-                <li><strong>Chrome / Edge:</strong> Settings → Privacy & Security → Site Settings → View permissions and data → search "whatifmoney" → Delete.</li>
-                <li><strong>Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data → Manage Data → search "whatifmoney" → Remove.</li>
+                <li><strong>Chrome / Edge:</strong> Settings → Privacy & Security → Site Settings → View permissions and data → search this site's domain → Delete.</li>
+                <li><strong>Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data → Manage Data → search this site's domain → Remove.</li>
                 <li><strong>Safari:</strong> Settings → Advanced → "Show develop menu" → Develop → Empty Caches; or Settings → Privacy → Manage Website Data.</li>
               </ul>
               <p className="mt-3">Clearing storage will reset your saved scenarios.</p>
@@ -1634,7 +1649,7 @@ const es: Dictionary = {
   cookieNotice: {
     body: (
       <>
-        Este sitio guarda tus datos en tu navegador (localStorage) para que recargar no los borre. No te rastrea, no registra nada en un servidor, y no usa cookies de terceros.
+        Este sitio guarda tus datos en tu navegador (localStorage) para que recargar no los borre. No hay cuentas, no hay tracking publicitario y no vendemos datos.
       </>
     ),
     accept: 'Entendido',
@@ -1643,13 +1658,13 @@ const es: Dictionary = {
   legal: {
     privacy: {
       title: 'Política de Privacidad',
-      lastUpdated: `Última actualización: ${LAST_UPDATED}`,
+      lastUpdated: `Última actualización: ${PRIVACY_COOKIES_LAST_UPDATED}`,
       sections: [
         {
           heading: 'Resumen en una frase',
           body: (
             <p>
-              TrueCompound es una calculadora del lado del cliente. No recopila, transmite ni comparte ningún dato personal con nadie. Tus datos se quedan en tu navegador.
+              TrueCompound no requiere cuentas, no tiene un backend para los datos de las calculadoras, y mantiene los escenarios en tu navegador salvo que decidas ponerlos en una URL compartible.
             </p>
           ),
         },
@@ -1665,14 +1680,17 @@ const es: Dictionary = {
           heading: 'Qué datos procesamos',
           body: (
             <>
-              <p>El sitio procesa los siguientes datos, todos localmente en tu propio navegador:</p>
+              <p>El sitio procesa los siguientes datos controlados por ti localmente en tu propio navegador:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
-                <li>Los datos numéricos que escribes en las calculadoras (saldo inicial, aporte mensual, tasa de retorno, etc.).</li>
+                <li>Los datos numéricos y escenarios que escribes en las calculadoras (saldo inicial, aporte mensual, tasa de retorno, etc.).</li>
                 <li>Tu preferencia de idioma (inglés o español).</li>
-                <li>Si has cerrado el aviso de cookies/almacenamiento.</li>
+                <li>Si has cerrado el aviso de cookies/privacidad/almacenamiento.</li>
               </ul>
               <p className="mt-3">
-                Estos datos se guardan en <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> bajo las claves <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-v1</code>, <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-lang</code>, y <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-cookie-ack</code>. Nada de eso sale de tu dispositivo.
+                Estos datos pueden guardarse en <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> bajo las claves <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-v1</code>, <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-lang</code>, y <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">whatifmoney-cookie-ack</code>. Los datos de las calculadoras no se envían a un servidor de aplicación de TrueCompound.
+              </p>
+              <p className="mt-3">
+                Las URLs compartibles pueden codificar ajustes del escenario en la propia URL. Si abres o compartes una de esas URLs, puede aparecer en el historial del navegador, mensajes o logs técnicos normales del hosting.
               </p>
             </>
           ),
@@ -1695,6 +1713,9 @@ const es: Dictionary = {
               <p className="mt-3">
                 Usamos el <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> del navegador como se describe arriba. Las entradas de localStorage no se transmiten a ningún servidor. Puedes borrarlas en cualquier momento desde la configuración de "datos del sitio" de tu navegador.
               </p>
+              <p className="mt-3">
+                No vendemos datos personales y no usamos tracking de marketing.
+              </p>
             </>
           ),
         },
@@ -1705,7 +1726,7 @@ const es: Dictionary = {
               <p>El sitio carga los siguientes recursos externos:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
                 <li><strong>Google Fonts</strong> (fonts.googleapis.com / fonts.gstatic.com) — para cargar las fuentes Inter y JetBrains Mono. Google puede recibir tu dirección IP como parte de esa petición. Consulta la política de privacidad de Google.</li>
-                <li><strong>Netlify</strong> (o similar) — el CDN del sitio. El host puede retener logs estándar de peticiones (IP, user-agent, ruta) por motivos operativos y de seguridad. No accedemos a esos logs.</li>
+                <li><strong>Netlify</strong> — el proveedor de hosting/CDN del sitio. Los logs técnicos estándar (como dirección IP, user-agent, URL solicitada e información de tiempos/errores) pueden procesarse por seguridad, prevención de abuso, depuración y rendimiento.</li>
               </ul>
               <p className="mt-3">
                 No incrustamos iframes, widgets de redes sociales ni sistemas de comentarios.
@@ -1714,10 +1735,18 @@ const es: Dictionary = {
           ),
         },
         {
+          heading: 'Sin cuentas ni asesoría financiera',
+          body: (
+            <p>
+              TrueCompound no requiere cuentas y es software educativo, no asesoría financiera, de inversión, fiscal ni legal. No introduzcas información que consideres sensible y no trates los resultados de las calculadoras como una recomendación.
+            </p>
+          ),
+        },
+        {
           heading: 'Tus derechos (RGPD Arts. 15–22)',
           body: (
             <>
-              <p>Como no guardamos ninguno de tus datos en nuestros servidores, la mayoría de derechos del RGPD son fáciles de ejercer tú mismo:</p>
+              <p>Como los datos de las calculadoras y preferencias se guardan localmente en tu navegador, la mayoría de derechos relacionados con esos datos son fáciles de ejercer tú mismo:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
                 <li><strong>Acceso:</strong> abre las herramientas de desarrollo del navegador → Aplicación → Local Storage. Las claves listadas arriba contienen todo lo que "tenemos" sobre ti.</li>
                 <li><strong>Supresión / derecho al olvido:</strong> borra las entradas de localStorage del sitio (configuración del navegador → "Borrar datos del sitio").</li>
@@ -1838,13 +1867,13 @@ const es: Dictionary = {
     },
     cookies: {
       title: 'Política de Cookies y Almacenamiento Local',
-      lastUpdated: `Última actualización: ${LAST_UPDATED}`,
+      lastUpdated: `Última actualización: ${PRIVACY_COOKIES_LAST_UPDATED}`,
       sections: [
         {
           heading: 'Qué usamos',
           body: (
             <p>
-              TrueCompound <strong>no</strong> usa cookies HTTP. Usa el <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> de tu navegador para recordar tres cosas: los datos de tus calculadoras, tu preferencia de idioma, y si has cerrado el aviso de almacenamiento.
+              Actualmente TrueCompound <strong>no</strong> establece cookies HTTP, cookies publicitarias ni cookies de analítica. Usa el <code className="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-ink-dim text-sm">localStorage</code> del navegador o almacenamiento similar a cookies solo para preferencias y ajustes guardados: idioma, confirmación de cookies/privacidad y escenarios guardados cuando corresponda.
             </p>
           ),
         },
@@ -1856,9 +1885,9 @@ const es: Dictionary = {
               <ul className="list-disc pl-5 space-y-1.5">
                 <li><strong>Estrictamente necesarias / funcionales:</strong> las entradas de localStorage son requeridas para entregar el servicio que solicitaste (una calculadora que recuerda tu escenario). No requieren consentimiento previo bajo el Art. 5(3) de la Directiva ePrivacy.</li>
               </ul>
-              <p className="mt-3">No usamos:</p>
+              <p className="mt-3">Actualmente no usamos:</p>
               <ul className="list-disc pl-5 space-y-1.5">
-                <li>Cookies / almacenamiento de analítica (sin Google Analytics, sin Plausible, sin Matomo).</li>
+                <li>Cookies / almacenamiento de analítica. Si se añade analítica más adelante, esta política se actualizará primero y se ofrecerán los controles de consentimiento que sean necesarios.</li>
                 <li>Cookies / píxeles de publicidad.</li>
                 <li>Cookies de tracking de redes sociales.</li>
                 <li>Cookies cross-site / de terceros.</li>
@@ -1881,7 +1910,7 @@ const es: Dictionary = {
                 <tbody className="text-ink-dim">
                   <tr className="border-b border-border">
                     <td className="py-2 pr-3 mono text-xs">whatifmoney-v1</td>
-                    <td className="py-2 pr-3">Guarda los datos numéricos de cada calculadora para que recargar la página no los borre.</td>
+                    <td className="py-2 pr-3">Guarda escenarios/ajustes de las calculadoras para que recargar la página no los borre.</td>
                     <td className="py-2">Hasta que borres el almacenamiento del navegador</td>
                   </tr>
                   <tr className="border-b border-border">
@@ -1905,8 +1934,8 @@ const es: Dictionary = {
             <>
               <p>Puedes borrar todo el almacenamiento de TrueCompound en cualquier momento:</p>
               <ul className="list-disc pl-5 space-y-1.5 mt-2">
-                <li><strong>Chrome / Edge:</strong> Configuración → Privacidad y Seguridad → Configuración del sitio → Ver permisos y datos → buscar "whatifmoney" → Eliminar.</li>
-                <li><strong>Firefox:</strong> Configuración → Privacidad y Seguridad → Cookies y Datos del Sitio → Administrar datos → buscar "whatifmoney" → Eliminar.</li>
+                <li><strong>Chrome / Edge:</strong> Configuración → Privacidad y Seguridad → Configuración del sitio → Ver permisos y datos → buscar el dominio de este sitio → Eliminar.</li>
+                <li><strong>Firefox:</strong> Configuración → Privacidad y Seguridad → Cookies y Datos del Sitio → Administrar datos → buscar el dominio de este sitio → Eliminar.</li>
                 <li><strong>Safari:</strong> Configuración → Avanzado → "Mostrar menú desarrollador" → Desarrollador → Vaciar Cachés; o Configuración → Privacidad → Administrar datos del sitio web.</li>
               </ul>
               <p className="mt-3">Borrar el almacenamiento reiniciará tus escenarios guardados.</p>
