@@ -99,6 +99,17 @@ describe('amortizeDebt', () => {
     const r = amortizeDebt(10000, 0.24, 10);
     expect(r.paidOff).toBe(false);
   });
+
+  it('models negative amortization when payment is below monthly interest', () => {
+    const r = amortizeDebt(10000, 0.24, 10);
+    const lastBalance = r.schedule[r.schedule.length - 1].balance;
+
+    expect(r.paidOff).toBe(false);
+    expect(r.totalInterest).toBeGreaterThan(0);
+    expect(r.totalPaid).toBeCloseTo(10 * 1200, 6);
+    expect(r.schedule[1].principalPaid).toBeLessThan(0);
+    expect(lastBalance).toBeGreaterThan(10000);
+  });
 });
 
 describe('compareTaxAccounts', () => {
@@ -112,6 +123,21 @@ describe('compareTaxAccounts', () => {
       capitalGainsRate: 0.15,
     });
     expect(r.rothTfsa.afterTax).toBeGreaterThan(r.taxable.afterTax);
+  });
+
+  it('treats tax wrapper annual return as an effective annual return', () => {
+    const r = compareTaxAccounts({
+      principal: 1000,
+      monthlyContribution: 0,
+      annualReturn: 0.08,
+      years: 1,
+      marginalTaxRate: 0,
+      futureWithdrawalTaxRate: 0,
+      capitalGainsRate: 0,
+    });
+
+    expect(r.rothTfsa.afterTax).toBeCloseTo(1080, 6);
+    expect(r.traditionalRrsp.afterTax).toBeCloseTo(1080, 6);
   });
 
   it('ties Roth/TFSA and Traditional/RRSP after rounding when current and future tax rates match', () => {
@@ -185,5 +211,34 @@ describe('runMonteCarlo', () => {
     expect(r.survivalRate).toBeDefined();
     expect(r.survivalRate).toBeGreaterThanOrEqual(0);
     expect(r.survivalRate).toBeLessThanOrEqual(1);
+  });
+
+  it('treats zero-volatility expected return as an effective annual return', () => {
+    const r = runMonteCarlo({
+      startingBalance: 1000,
+      monthlyContribution: 0,
+      meanAnnualReturn: 0.07,
+      annualStdDev: 0,
+      years: 1,
+      iterations: 20,
+    });
+    const last = r.p50.length - 1;
+
+    expect(r.p50[last]).toBeCloseTo(1070, 6);
+  });
+
+  it('reports full survival in withdrawal mode with no withdrawals', () => {
+    const r = runMonteCarlo({
+      startingBalance: 100000,
+      monthlyContribution: 0,
+      meanAnnualReturn: 0.05,
+      annualStdDev: 0,
+      years: 30,
+      iterations: 20,
+      mode: 'withdrawal',
+      monthlyWithdrawal: 0,
+    });
+
+    expect(r.survivalRate).toBe(1);
   });
 });

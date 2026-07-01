@@ -15,7 +15,8 @@ export interface AmortizationResult {
 
 /**
  * Amortize a debt at fixed monthly payment.
- * If payment is too low to cover interest, returns paidOff: false and caps schedule at 1200 months (100 years).
+ * If payment is too low to cover interest, models negative amortization
+ * through the 1200-month cap and returns paidOff: false.
  */
 export function amortizeDebt(balance: number, apr: number, payment: number): AmortizationResult {
   const monthlyRate = apr / 12;
@@ -31,20 +32,10 @@ export function amortizeDebt(balance: number, apr: number, payment: number): Amo
     month++;
     const interest = bal * monthlyRate;
     let principal = payment - interest;
-    if (principal <= 0) {
-      // payment doesn't cover interest — debt grows forever
-      return {
-        months: MAX_MONTHS,
-        totalInterest: Infinity,
-        totalPaid: Infinity,
-        schedule,
-        paidOff: false,
-      };
-    }
     if (principal > bal) principal = bal;
     bal = bal - principal;
     totalInterest += interest;
-    totalPaid += interest + principal;
+    totalPaid += principal > 0 ? interest + principal : payment;
     schedule.push({ month, balance: bal, interestPaid: interest, principalPaid: principal });
   }
 

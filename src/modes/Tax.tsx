@@ -154,7 +154,7 @@ export default function Tax() {
       heroLabel: t.tax.heroTaxable,
       afterTax: result.taxable.afterTax,
       roundedAfterTax: Math.round(result.taxable.afterTax),
-      note: 'Annual taxable drag on compounding.',
+      note: 'Simplified taxable drag on compounding.',
     },
   ];
 

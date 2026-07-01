@@ -165,6 +165,9 @@ export interface Dictionary {
     heroWinsBy: (winner: string) => string;
     heroSubLump: string;
     heroSubDCA: string;
+    tieHeading: string;
+    tieValue: string;
+    tieSubcopy: string;
     lumpSumLabel: string;
     dcaLineLabel: (months: number) => string;
     winnerLump: string;
@@ -178,6 +181,12 @@ export interface Dictionary {
       winnerLabel: string;
       diff: string;
       lumpWins: boolean;
+    }) => ReactNode;
+    tiePlainEnglish: (args: {
+      capital: string;
+      presetLabel: string;
+      finalLump: string;
+      finalDCA: string;
     }) => ReactNode;
     callout: ReactNode;
   };
@@ -542,6 +551,9 @@ const en: Dictionary = {
     heroWinsBy: (w) => `${w} wins by`,
     heroSubLump: 'Time-in-market beat timing',
     heroSubDCA: 'DCA avoided a bad entry',
+    tieHeading: 'No clear winner',
+    tieValue: '$0 difference after rounding',
+    tieSubcopy: 'The two strategies land on the same displayed ending value.',
     lumpSumLabel: 'Lump sum (day-one deploy)',
     dcaLineLabel: (m) => `DCA over ${m} months`,
     winnerLump: 'Lump sum',
@@ -552,6 +564,11 @@ const en: Dictionary = {
         {lumpWins
           ? 'Lump sum usually wins when the market trends up during the deployment window — time-in-market beats timing.'
           : 'DCA wins here because lumping in caught the start of a drawdown; spreading the buys averaged into lower prices.'}
+      </>
+    ),
+    tiePlainEnglish: ({ capital, presetLabel, finalLump, finalDCA }) => (
+      <>
+        You started with <strong>{capital}</strong> and ran it through <strong className="text-ink">{presetLabel}</strong>. Lump sum ended at <strong className="text-ink">{finalLump}</strong> and DCA ended at <strong className="text-ink">{finalDCA}</strong>. After normal dollar rounding, there is <strong className="text-ink">$0 difference</strong>, so there is no clear winner under these assumptions.
       </>
     ),
     callout: (
@@ -1368,6 +1385,9 @@ const es: Dictionary = {
     heroLump: 'Final tiro único',
     heroDCA: 'Final DCA',
     heroWinsBy: (w) => `${w} gana por`,
+    tieHeading: 'Sin ganador claro',
+    tieValue: '$0 de diferencia después de redondear',
+    tieSubcopy: 'Las dos estrategias terminan en el mismo valor mostrado.',
     heroSubLump: 'Tiempo en el mercado venció al timing',
     heroSubDCA: 'DCA evitó una mala entrada',
     lumpSumLabel: 'Tiro único (despliegue el día uno)',
@@ -1380,6 +1400,11 @@ const es: Dictionary = {
         {lumpWins
           ? 'El tiro único suele ganar cuando el mercado sube durante la ventana de despliegue — el tiempo en el mercado vence al timing.'
           : 'DCA gana aquí porque meter todo de golpe atrapó el inicio de una caída; repartir las compras promedió hacia precios más bajos.'}
+      </>
+    ),
+    tiePlainEnglish: ({ capital, presetLabel, finalLump, finalDCA }) => (
+      <>
+        Empezaste con <strong>{capital}</strong> y lo pasaste por <strong className="text-ink">{presetLabel}</strong>. El tiro único terminó con <strong className="text-ink">{finalLump}</strong> y DCA terminó con <strong className="text-ink">{finalDCA}</strong>. Después de redondear al dólar, la diferencia es <strong className="text-ink">$0</strong>, así que no hay un ganador claro bajo estos supuestos.
       </>
     ),
     callout: (

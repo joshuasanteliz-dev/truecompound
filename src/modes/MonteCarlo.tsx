@@ -157,6 +157,7 @@ export default function MonteCarlo() {
         annualStdDev: debounced.annualStdDev,
         years: debounced.years,
         iterations: debounced.iterations,
+        mode: debounced.mode,
         monthlyWithdrawal: debounced.mode === 'withdrawal' ? debounced.monthlyWithdrawal : 0,
       }),
     [debounced],

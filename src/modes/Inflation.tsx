@@ -228,7 +228,9 @@ export default function Inflation() {
         <div className={styles.assumptionsRail}>
           <div className={styles.assumptionsHeader}>
             <div className="label text-emerald">ASSUMPTIONS</div>
-            <p className="mt-1 text-sm text-muted">Adjust the model inputs that shape the correction.</p>
+            <p className="mt-1 text-sm text-muted">
+              Adjust the model inputs that shape the correction. Monthly contributions are modeled at the start of each month.
+            </p>
           </div>
 
           <InputPanel>

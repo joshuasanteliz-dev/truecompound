@@ -5,6 +5,7 @@ export interface MonteCarloInputs {
   annualStdDev: number;
   years: number;
   iterations: number;
+  mode?: 'accumulation' | 'withdrawal';
   monthlyWithdrawal?: number;
 }
 
@@ -42,7 +43,7 @@ function percentile(sorted: number[], p: number): number {
  * percentile bands (10/50/90) for each year, plus final-balance distribution
  * and survival rate (for withdrawal mode).
  *
- * In withdrawal mode (monthlyWithdrawal > 0), a run is "successful" if balance
+ * In withdrawal mode, a run is "successful" if balance
  * stays >= 0 for all months.
  */
 export function runMonteCarlo(inputs: MonteCarloInputs): MonteCarloResult {
@@ -53,12 +54,14 @@ export function runMonteCarlo(inputs: MonteCarloInputs): MonteCarloResult {
     annualStdDev,
     years,
     iterations,
+    mode,
     monthlyWithdrawal = 0,
   } = inputs;
 
   const months = Math.round(years * 12);
-  const monthlyMean = meanAnnualReturn / 12;
+  const monthlyMean = Math.pow(1 + meanAnnualReturn, 1 / 12) - 1;
   const monthlyStd = annualStdDev / Math.sqrt(12);
+  const isWithdrawal = mode === 'withdrawal' || monthlyWithdrawal > 0;
 
   const yearlyByIteration: number[][] = [];
   const finalBalances: number[] = [];
@@ -104,7 +107,7 @@ export function runMonteCarlo(inputs: MonteCarloInputs): MonteCarloResult {
     p50,
     p90,
     finalBalances,
-    survivalRate: monthlyWithdrawal > 0 ? survivors / iterations : undefined,
+    survivalRate: isWithdrawal ? survivors / iterations : undefined,
     sampleRuns,
   };
 }

@@ -116,10 +116,19 @@ export default function DCA() {
   const finalLump = result.lumpSum[result.lumpSum.length - 1];
   const finalDCA = result.dcaPath[result.dcaPath.length - 1];
   const diff = finalLump - finalDCA;
-  const lumpWins = diff >= 0;
+  const isRoundedTie = Math.round(finalLump) === Math.round(finalDCA);
+  const lumpWins = diff > 0;
   const winnerLabel = lumpWins ? t.dca.winnerLump : t.dca.winnerDCA;
   const diffAbs = Math.abs(diff);
-  const isCloseResult = diffAbs <= Math.max(finalLump, finalDCA, 1) * 0.005;
+  const isCloseResult = isRoundedTie || diffAbs <= Math.max(finalLump, finalDCA, 1) * 0.005;
+  const resultHeading = isRoundedTie ? t.dca.tieHeading : t.dca.heroWinsBy(winnerLabel);
+  const resultValue = isRoundedTie ? t.dca.tieValue : formatCurrency(diffAbs);
+  const resultValueKey = isRoundedTie ? `tie-${Math.round(finalLump)}-${Math.round(finalDCA)}` : diffAbs;
+  const resultSubcopy = isRoundedTie
+    ? t.dca.tieSubcopy
+    : lumpWins
+      ? t.dca.heroSubLump
+      : t.dca.heroSubDCA;
 
   const xLabels = result.lumpSum.map((_, i) => (i % 12 === 0 ? String(i / 12) : ''));
 
@@ -201,33 +210,42 @@ export default function DCA() {
           <div className="grid gap-4">
             <section className={`card p-5 lg:p-6 ${isCloseResult ? 'border-white/10 bg-white/[0.02]' : 'border-emerald/30 bg-emerald/5'}`}>
               <div className={`label ${isCloseResult ? 'text-muted' : 'text-emerald'}`}>
-                {t.dca.heroWinsBy(winnerLabel)}
+                {resultHeading}
               </div>
               <div
                 className={`mono mt-2 break-words text-4xl font-semibold tracking-tight sm:text-5xl ${
                   isCloseResult ? 'text-ink' : 'text-emerald'
                 }`}
               >
-                <RecalcPulse valueKey={diffAbs} tone={isCloseResult ? 'muted' : 'emerald'}>
-                  {formatCurrency(diffAbs)}
+                <RecalcPulse valueKey={resultValueKey} tone={isCloseResult ? 'muted' : 'emerald'}>
+                  {resultValue}
                 </RecalcPulse>
               </div>
-              <div className="mt-2 text-sm text-muted">{lumpWins ? t.dca.heroSubLump : t.dca.heroSubDCA}</div>
+              <div className="mt-2 text-sm text-muted">{resultSubcopy}</div>
             </section>
 
             {/* Desktop keeps Plain English beside the answer; on mobile it moves below the workbench. */}
             <div className="hidden lg:block">
               <PlainEnglish>
-                {t.dca.plainEnglish({
-                  capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
-                  presetLabel,
-                  finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
-                  finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
-                  deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
-                  winnerLabel,
-                  diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
-                  lumpWins,
-                })}
+                {isRoundedTie ? (
+                  t.dca.tiePlainEnglish({
+                    capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+                    presetLabel,
+                    finalLump: recalcTextValue<string>(finalLump, 'muted', formatCurrency(finalLump)),
+                    finalDCA: recalcTextValue<string>(finalDCA, 'muted', formatCurrency(finalDCA)),
+                  })
+                ) : (
+                  t.dca.plainEnglish({
+                    capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+                    presetLabel,
+                    finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
+                    finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
+                    deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
+                    winnerLabel,
+                    diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
+                    lumpWins,
+                  })
+                )}
               </PlainEnglish>
             </div>
           </div>
@@ -357,16 +375,25 @@ export default function DCA() {
           these render inside the result section above. */}
       <div className="mt-5 grid gap-3 lg:hidden">
         <PlainEnglish>
-          {t.dca.plainEnglish({
-            capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
-            presetLabel,
-            finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
-            finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
-            deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
-            winnerLabel,
-            diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
-            lumpWins,
-          })}
+          {isRoundedTie ? (
+            t.dca.tiePlainEnglish({
+              capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+              presetLabel,
+              finalLump: recalcTextValue<string>(finalLump, 'muted', formatCurrency(finalLump)),
+              finalDCA: recalcTextValue<string>(finalDCA, 'muted', formatCurrency(finalDCA)),
+            })
+          ) : (
+            t.dca.plainEnglish({
+              capital: recalcTextValue<string>(debounced.totalCapital, 'muted', formatCurrency(debounced.totalCapital)),
+              presetLabel,
+              finalLump: recalcTextValue<string>(finalLump, lumpWins ? 'emerald' : 'muted', formatCurrency(finalLump)),
+              finalDCA: recalcTextValue<string>(finalDCA, !lumpWins ? 'emerald' : 'muted', formatCurrency(finalDCA)),
+              deployMonths: recalcTextValue<number>(debounced.deploymentMonths, 'muted', debounced.deploymentMonths),
+              winnerLabel,
+              diff: recalcTextValue<string>(diffAbs, isCloseResult ? 'muted' : 'emerald', formatCurrency(diffAbs)),
+              lumpWins,
+            })
+          )}
         </PlainEnglish>
         <div className="grid gap-3 [&_.hero-number]:border-[rgba(148,163,184,0.16)] [&_.hero-number]:bg-[rgba(11,14,20,0.78)] [&_.hero-number]:shadow-[inset_0_1px_0_rgba(245,247,250,0.035)]">
           <HeroNumber

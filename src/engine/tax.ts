@@ -17,8 +17,8 @@ export interface TaxComparisonResult {
 }
 
 /**
- * Apply annual capital-gains drag to a compounding portfolio.
- * Each year, gains are taxed at the capital gains rate (a simplification — assumes realization annually).
+ * Apply a simplified taxable drag to a compounding portfolio.
+ * This is a return haircut, not a precise realization/tax-lot model.
  */
 export function applyTaxDrag(
   principal: number,
@@ -28,12 +28,12 @@ export function applyTaxDrag(
   capitalGainsRate: number,
 ): number[] {
   const effectiveAnnualReturn = annualReturn * (1 - capitalGainsRate);
-  return compound(principal, monthlyContribution, effectiveAnnualReturn, years, 'monthly').yearlyBalances;
+  return compound(principal, monthlyContribution, effectiveAnnualReturn, years, 'monthly', 'effectiveAnnual').yearlyBalances;
 }
 
 /**
  * Side-by-side comparison of three account types.
- * - Taxable: capital-gains drag applied annually
+ * - Taxable: simplified capital-gains drag applied as an annual return haircut
  * - Roth/TFSA: contributions post-tax (assumed), no drag, no withdrawal tax
  * - Traditional/RRSP: same saving power grossed up by the current tax rate, no drag,
  *   then full balance taxed at the future withdrawal tax rate
@@ -51,7 +51,14 @@ export function compareTaxAccounts(inputs: TaxComparisonInputs): TaxComparisonRe
 
   const taxableBalances = applyTaxDrag(principal, monthlyContribution, annualReturn, years, capitalGainsRate);
 
-  const rothBalances = compound(principal, monthlyContribution, annualReturn, years, 'monthly').yearlyBalances;
+  const rothBalances = compound(
+    principal,
+    monthlyContribution,
+    annualReturn,
+    years,
+    'monthly',
+    'effectiveAnnual',
+  ).yearlyBalances;
 
   const grossUpFactor = 1 / Math.max(1 - marginalTaxRate, 0.01);
   const traditionalPreTaxBalances = compound(
@@ -60,6 +67,7 @@ export function compareTaxAccounts(inputs: TaxComparisonInputs): TaxComparisonRe
     annualReturn,
     years,
     'monthly',
+    'effectiveAnnual',
   ).yearlyBalances;
   const traditionalBalances = traditionalPreTaxBalances.map((balance) => balance * (1 - futureWithdrawalTaxRate));
 
