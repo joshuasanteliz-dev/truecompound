@@ -443,10 +443,11 @@ export default function MonteCarlo() {
           </div>
 
           <InputPanel>
-            <div className="flex rounded-md border border-border bg-surface-2 p-0.5 text-xs">
+            <div className="flex rounded-md border border-border bg-surface-2 p-0.5 text-xs" role="group" aria-label={t.inputs.mode}>
               <button
                 type="button"
                 onClick={() => setMC({ mode: 'accumulation' })}
+                aria-pressed={mc.mode === 'accumulation'}
                 className={`flex-1 px-2 py-1.5 rounded font-semibold ${
                   mc.mode === 'accumulation' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'
                 }`}
@@ -456,6 +457,7 @@ export default function MonteCarlo() {
               <button
                 type="button"
                 onClick={() => setMC({ mode: 'withdrawal' })}
+                aria-pressed={mc.mode === 'withdrawal'}
                 className={`flex-1 px-2 py-1.5 rounded font-semibold ${
                   mc.mode === 'withdrawal' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'
                 }`}

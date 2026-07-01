@@ -146,6 +146,17 @@ export function GrowthChart({
     [scale, xAxisLabel, yAxisLabel, currency, animationDuration, formatYTick, formatTooltipValue],
   );
 
+  // Concise text alternative for the canvas, which is otherwise opaque to assistive tech.
+  const chartSummary = useMemo(() => {
+    const fmt = currency ? (n: number) => formatCurrency(n) : (n: number) => formatCurrencyCompact(n);
+    const parts = series.map((s) => {
+      const start = s.data[0] ?? 0;
+      const end = s.data[s.data.length - 1] ?? 0;
+      return `${s.label}: ${fmt(start)} to ${fmt(end)}`;
+    });
+    return `Line chart of ${yAxisLabel.toLowerCase()} over ${xAxisLabel.toLowerCase()}. ${parts.join('. ')}.`;
+  }, [series, currency, xAxisLabel, yAxisLabel]);
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
@@ -165,10 +176,11 @@ export function GrowthChart({
           ))}
         </div>
         {allowLogScale && (
-          <div className="flex rounded-md border border-border bg-surface-2 p-0.5 text-xs">
+          <div className="flex rounded-md border border-border bg-surface-2 p-0.5 text-xs" role="group" aria-label="Chart scale">
             <button
               type="button"
               onClick={() => setScale('linear')}
+              aria-pressed={scale === 'linear'}
               className={`px-2 py-1 rounded font-semibold ${scale === 'linear' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'}`}
             >
               Linear
@@ -176,6 +188,7 @@ export function GrowthChart({
             <button
               type="button"
               onClick={() => setScale('logarithmic')}
+              aria-pressed={scale === 'logarithmic'}
               className={`px-2 py-1 rounded font-semibold ${scale === 'logarithmic' ? 'bg-emerald text-canvas' : 'text-muted hover:text-ink'}`}
             >
               Log
@@ -183,7 +196,7 @@ export function GrowthChart({
           </div>
         )}
       </div>
-      <div style={{ height }}>
+      <div style={{ height }} role="img" aria-label={chartSummary}>
         <Line data={data} options={options} />
       </div>
     </div>

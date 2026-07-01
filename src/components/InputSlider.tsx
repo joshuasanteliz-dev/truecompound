@@ -53,6 +53,7 @@ export function InputSlider({
         max={max}
         step={step}
         value={value}
+        aria-valuetext={`${prefix}${display}${suffix}`}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full"
       />

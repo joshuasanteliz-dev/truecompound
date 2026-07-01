@@ -104,6 +104,7 @@ export interface Dictionary {
     iterations: string;
     accumulation: string;
     withdrawal: string;
+    mode: string;
     accumulationHint: string;
     withdrawalHint: string;
     sharescenario: string;
@@ -442,6 +443,7 @@ const en: Dictionary = {
     iterations: 'Iterations',
     accumulation: 'Accumulation',
     withdrawal: 'Withdrawal',
+    mode: 'Simulation mode',
     accumulationHint: "You're building wealth — adding money each month, never taking any out.",
     withdrawalHint: "You're in retirement — drawing money out each month, no longer contributing.",
     sharescenario: 'Share scenario',
@@ -1269,6 +1271,7 @@ const es: Dictionary = {
     iterations: 'Iteraciones',
     accumulation: 'Acumulación',
     withdrawal: 'Retiro',
+    mode: 'Modo de simulación',
     accumulationHint: 'Estás construyendo riqueza — añadiendo dinero cada mes, sin retirar nada.',
     withdrawalHint: 'Estás en la jubilación — sacando dinero cada mes, ya no aportas.',
     sharescenario: 'Compartir escenario',

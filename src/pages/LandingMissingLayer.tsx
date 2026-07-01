@@ -383,8 +383,8 @@ function CalculationReveal({
   return (
     <div
       className={`layer-peel-object ${active ? 'layer-peel-object--active' : ''}`}
+      role="group"
       aria-label={`${copy.heroLabel}: ${copy.normalValue} becomes ${copy.revealedValue}`}
-      tabIndex={0}
     >
       <div className="layer-peel-object__topline">
         <span className="layer-peel-object__badge">{copy.heroLabel}</span>

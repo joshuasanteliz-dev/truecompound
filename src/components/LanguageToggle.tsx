@@ -7,7 +7,11 @@ import { useLang } from '@/i18n';
 export function LanguageToggle() {
   const { lang, setLang } = useLang();
   return (
-    <div className="flex rounded-md border border-border bg-surface p-0.5 text-[11px] font-bold tracking-wider">
+    <div
+      className="flex rounded-md border border-border bg-surface p-0.5 text-[11px] font-bold tracking-wider"
+      role="group"
+      aria-label="Language / Idioma"
+    >
       <button
         type="button"
         onClick={() => setLang('en')}
