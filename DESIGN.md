@@ -1,10 +1,10 @@
-# WhatIfMoney Landing Redesign Contract
+# TrueCompound Landing Redesign Contract
 
 ## 1. Chosen Design Direction
 
 Name: The Layer Peel.
 
-The landing page should reveal the difference between a normal calculator's clean fantasy number and WhatIfMoney's hidden-layer result. The hero should make the product thesis visible: ordinary calculators show one reassuring number, while WhatIfMoney peels back the omitted layers that change what the number really means.
+The landing page should reveal the difference between a normal calculator's clean fantasy number and TrueCompound's hidden-layer result. The hero should make the product thesis visible: ordinary calculators show one reassuring number, while TrueCompound peels back the omitted layers that change what the number really means.
 
 ## 2. Target User
 
@@ -41,7 +41,7 @@ The design should feel serious, useful, financially trustworthy, premium, slight
 - The hero should show a controlled illustrative example, clearly labeled as an example scenario.
 - The example should contrast:
   - normal calculator / nominal fantasy number
-  - WhatIfMoney / real purchasing power or revealed result
+  - TrueCompound / real purchasing power or revealed result
   - hidden layers: inflation, taxes/fees, timing, debt, and uncertainty
 
 ## 7. Typography Rules
