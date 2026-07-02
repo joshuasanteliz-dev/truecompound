@@ -1,8 +1,12 @@
 # TrueCompound
 
+**[▶ Live demo](https://truecompound.netlify.app/)**  ·  React 18 + TypeScript  ·  [Unit-tested engine](#architecture)  ·  Deployed on Netlify
+
 TrueCompound is a compound-growth calculator suite — five focused financial visualizations that share a single calculation engine. Built to reveal the real value behind the number after inflation drag, sequence-of-returns risk, tax-wrapper differences, and the symmetry between debt and investment growth.
 
 > "Most calculators lie by omission. These don't."
+
+![TrueCompound — Monte Carlo mode](./hero.png)
 
 ## Modes
 
@@ -66,4 +70,7 @@ src/
 
 Historical return series are *shape-faithful* (period CAGR + volatility) but deterministically generated, not raw index data. For path-dependence intuition, not backtesting.
 
-Built by Joshua Santeliz.
+---
+
+Built by **Joshua Santeliz** — full-stack developer (fintech / data-systems focus), Madrid.
+[LinkedIn](https://linkedin.com/in/joshuasanteliz/) · [GitHub](https://github.com/joshuasanteliz-dev)
