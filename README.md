@@ -6,7 +6,7 @@ TrueCompound is a compound-growth calculator suite — five focused financial vi
 
 > "Most calculators lie by omission. These don't."
 
-![TrueCompound — Monte Carlo mode](./docs/hero.png)
+![TrueCompound — Monte Carlo mode](./hero.png)
 
 ## Modes
 
