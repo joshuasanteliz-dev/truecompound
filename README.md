@@ -73,4 +73,4 @@ Historical return series are *shape-faithful* (period CAGR + volatility) but det
 ---
 
 Built by **Joshua Santeliz** — full-stack developer (fintech / data-systems focus), Madrid.
-[LinkedIn](https://linkedin.com/in/joshuasanteliz/) · [GitHub](https://github.com/[[joshuasanteliz-dev]])
+[LinkedIn](https://linkedin.com/in/joshuasanteliz/) · [GitHub](https://github.com/joshuasanteliz-dev)
